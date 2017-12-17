@@ -140,6 +140,7 @@ class Validator
         'email' => Email::class,
         'url'   => Url::class,
         'color' => HexRgbColor::class,
+        ''
 
         //
         // TODO@me -> take a look here
@@ -324,7 +325,7 @@ class Validator
     $inputName = $inputField->getAttribute('name');
     $inputFilter = $inputField->getAttribute('data-filter');
 
-    if ($inputFilter === 'auto') {
+    if (!$inputFilter) {
       $inputFilter = 'htmlentities';
     }
 
@@ -347,9 +348,14 @@ class Validator
     $inputName = $inputField->getAttribute('name');
     $inputRule = $inputField->getAttribute('data-validator');
 
-    if ($inputRule === 'auto') {
+    if (strpos($inputRule, 'auto') !== false) {
       $inputType = $inputField->getAttribute('type');
-      $inputRule = $this->autoSelectRuleByInputType($inputType);
+
+      $inputRule = str_replace(
+          'auto',
+          $this->autoSelectRuleByInputType($inputType),
+          $inputRule
+      );
     }
 
     if ($inputField->hasAttribute('required')) {
@@ -418,6 +424,7 @@ class Validator
             if (!$fieldFilter) {
               continue;
             }
+
             $currentFieldValue = $this->applyFilter($currentFieldValue, $fieldFilter);
           }
         }

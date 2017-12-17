@@ -84,7 +84,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             id="email"
             name="user[1][email]"
             value=""
-            data-validator="auto"
+            data-validator="auto|maxLength(200)"
             required="required"
         />
         
@@ -148,7 +148,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             id="lall"
             name="lall"
             value=""
-            data-filter="auto"
+            data-filter
         />
         <input type="submit"/>
     </form>
@@ -249,7 +249,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'user-register' => [
-                'user[1][email]' => 'Respect\Validation\Rules\Email',
+                'user[1][email]' => 'Respect\Validation\Rules\Email|maxLength(200)',
                 'user[2][name]'  => 'notEmpty',
             ],
         ],

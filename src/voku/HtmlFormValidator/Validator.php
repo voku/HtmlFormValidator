@@ -145,6 +145,16 @@ class Validator
   }
 
   /**
+   * Get the filters that will be applied.
+   *
+   * @return string[][]
+   */
+  public function getAllFilters(): array
+  {
+    return $this->filters;
+  }
+
+  /**
    * Get the rules that will be applied.
    *
    * @return string[][]
@@ -338,16 +348,16 @@ class Validator
    * Loop the form data through form rules.
    *
    * @param array $formValues
-   * @param bool  $checkForRules
+   * @param bool  $useNoValidationRuleException
    *
    * @throws UnknownValidationRule
    *
    * @return ValidatorResult
    */
-  public function validate(array $formValues, $checkForRules = true): ValidatorResult
+  public function validate(array $formValues, $useNoValidationRuleException = false): ValidatorResult
   {
     if (
-        $checkForRules === true
+        $useNoValidationRuleException === true
         &&
         \count($this->rules) === 0
     ) {

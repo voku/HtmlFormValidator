@@ -138,6 +138,23 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     ';
   }
 
+  protected function getFilterValidForm()
+  {
+    return '
+    <form action="%s" id="lall-form" method="post">
+        <label for="lall">Lall:</label>
+        <input
+            type="text"
+            id="lall"
+            name="lall"
+            value=""
+            data-filter="auto"
+        />
+        <input type="submit"/>
+    </form>
+    ';
+  }
+
   protected function getFormWithAdditionalInputValidForm()
   {
     return '
@@ -280,6 +297,75 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
                 0 => '"foo@isanemail" must be valid email',
             ],
         ], $formValidatorResult->getErrorMessages()
+    );
+  }
+
+
+  /**
+   * @test
+   */
+  public function it_can_use_auto_filer()
+  {
+    $formHTML = $this->getFilterValidForm();
+
+    $formValidator = new Validator($formHTML);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [],
+        $rules
+    );
+
+    // ---
+
+    $filter = $formValidator->getAllFilters();
+    self::assertSame(
+        [
+            'lall-form' => [
+                'lall' => 'htmlentities',
+            ],
+        ],
+        $filter
+    );
+    self::assertCount(1, $filter['lall-form']);
+
+    // ---
+
+    $formData = [
+        'user' => [
+            '1' => ['email' => 'foo@isanemail.com'],
+            '2' => ['name' => 'bar'],
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // ---
+
+    $formData = [
+        'user' => [
+            '1' => ['email' => 'foo@isanemail.com'],
+            '2' => ['name' => 'bar'],
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [],
+        $formValidatorResult->getErrorMessages()
+    );
+
+    // ---
+
+    $formData = [
+        'user' => [
+            '1' => ['email' => 'foo@isanemail'],
+            '2' => ['name' => 'bar'],
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [],
+        $formValidatorResult->getErrorMessages()
     );
   }
 
@@ -737,6 +823,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         'foo' => 'bar',
     ];
 
-    (new Validator($formHTML))->validate($formData);
+    (new Validator($formHTML))->validate($formData, true);
   }
 }

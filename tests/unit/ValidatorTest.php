@@ -107,6 +107,37 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     ';
   }
 
+  protected function getBasicValidFormWithSimpleArrayData()
+  {
+    return '
+    <form action="%s" id="register" method="post">
+        <label for="email">Email:</label>
+        <input
+            type="email"
+            id="email"
+            name="user[email]"
+            value=""
+            data-validator="email"
+            data-filter="trim"
+            required="required"
+        />
+        
+        <label for="username">Name:</label>
+        <input
+            type="text"
+            id="username"
+            name="user[name]"
+            value=""
+            data-validator="notEmpty|stringType"
+            data-filter="strip_tags|trim|escape"
+            required="required"
+        />
+        
+        <input type="submit"/>
+    </form>
+    ';
+  }
+
   protected function getFormWithAdditionalInputValidForm()
   {
     return '
@@ -429,6 +460,71 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         [
             'lall' => [
                 0 => '"foobar" must be an integer number',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_simple_array_data_for_validations()
+  {
+    $formHTML = $this->getBasicValidFormWithSimpleArrayData();
+
+    $formValidator = new Validator($formHTML);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'register' => [
+                'user[email]' => 'email',
+                'user[name]'  => 'notEmpty|stringType',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(2, $rules['register']);
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail.com',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail.com',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [],
+        $formValidatorResult->getErrorMessages()
+    );
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'user[email]' => [
+                0 => '"foo@isanemail" must be valid email',
             ],
         ],
         $formValidatorResult->getErrorMessages()

@@ -58,9 +58,23 @@ $html = "
 ";
 
 $formValidator = new Validator($formHTML);
+
+$formData = [
+        'user' => [
+            'email' => 'foo@isanemail',
+            'name'  => 'bar',
+        ],
+    ];
+
+
+// validate the form
 $formValidatorResult = $formValidator->validate($formData);
 
-$formValidatorResult->isSuccess(); // bool
+// check the result
+$formValidatorResult->isSuccess(); // false
+
+// get the error messages
+$formValidatorResult->getErrorMessages(); // ['user[email]' => ['"foo@isanemail" must be valid email']]    
 ```
 
 ## Unit Test

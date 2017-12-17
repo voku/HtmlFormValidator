@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace voku\HtmlFormValidator;
 
-use Symfony\Component\CssSelector\CssSelectorConverter;
 use Symfony\Component\CssSelector\Exception\SyntaxErrorException;
 use voku\helper\HtmlDomParser;
 

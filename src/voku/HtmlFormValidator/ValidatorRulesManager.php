@@ -24,12 +24,16 @@ class ValidatorRulesManager
   /**
    * @param string $rule
    *
-   * @return null|string|AbstractRule
+   * @return array <p>keys: 'class', 'classArgs', 'object'</p>
    */
-  public function getClassViaAlias($rule)
+  public function getClassViaAlias(string $rule): array
   {
     if (!$rule) {
-      return null;
+      return [
+          'class'     => null,
+          'classArgs' => null,
+          'object'    => null,
+      ];
     }
 
     if (isset($this->rules[$rule])) {
@@ -39,7 +43,12 @@ class ValidatorRulesManager
     }
 
     if ($classWithNamespace instanceof AbstractRule) {
-      return $classWithNamespace;
+
+      return [
+          'class'     => null,
+          'classArgs' => null,
+          'object'    => $classWithNamespace,
+      ];
     }
 
     if (\strpos($classWithNamespace, "\\") !== false) {
@@ -58,6 +67,31 @@ class ValidatorRulesManager
 
     $class = \lcfirst(\trim($class));
 
-    return $class;
+    $classArgsMatches = [];
+    \preg_match('/\((?<args>.*?)\)$/', $class, $classArgsMatches);
+    $class = \preg_replace('/\((.*?)\)$/', '', $class);
+
+    $classArgs = array();
+    if (isset($classArgsMatches['args'])) {
+      $classArgsTmp = $classArgsMatches['args'];
+      $classArgsTmpArray = explode(',', $classArgsTmp);
+      foreach ($classArgsTmpArray as $classArgsTmp) {
+        $classArg = trim($classArgsTmp);
+
+        if ($classArg === 'true' || $classArg === 'false') {
+          $classArg = (bool)$classArg;
+        } else if ($classArgs === 'null') {
+          $classArg = null;
+        }
+
+        $classArgs[] = $classArg;
+      }
+    }
+
+    return [
+        'class'     => $class,
+        'classArgs' => (\count($classArgs) !== 0 ? $classArgs : null),
+        'object'    => null,
+    ];
   }
 }

@@ -15,7 +15,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             id="email"
             name="email"
             value=""
-            data-validator="email"
+            data-validator="email|maxLength(20)"
             required="required"
         />
         <input type="submit"/>
@@ -535,8 +535,9 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'lall' => [
-                0 => '"noop" must be an integer number',
-                1 => '"noop" must be positive',
+                0 => '- All of the required rules must pass for "noop"
+  - "noop" must be an integer number
+  - "noop" must be positive',
             ],
         ],
         $formValidatorResult->getErrorMessages()
@@ -552,8 +553,79 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'lall' => [
-                0 => '"foobar" must be an integer number',
-                1 => '"foobar" must be positive',
+                0 => '- All of the required rules must pass for "foobar"
+  - "foobar" must be an integer number
+  - "foobar" must be positive',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_custom_error_messages()
+  {
+    $formHTML = $this->getBasicValidFormWithSimpleArrayData();
+
+    $formValidator = new Validator($formHTML);
+    $formValidator->setTranslator(
+        function ($text) {
+          return 'Error: ' . $text;
+        }
+    );
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'register' => [
+                'user[email]' => 'email',
+                'user[name]'  => 'notEmpty|stringType',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(2, $rules['register']);
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail.com',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail.com',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [],
+        $formValidatorResult->getErrorMessages()
+    );
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'user[email]' => [
+                0 => 'Error: "foo@isanemail" must be valid email',
             ],
         ],
         $formValidatorResult->getErrorMessages()
@@ -657,11 +729,41 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     self::assertFalse($formValidatorResult->isSuccess());
     self::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email" required="required">',
+        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
         $formValidator->getHtml()
     );
     self::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email" required="required" aria-invalid="true">',
+        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
+        $formValidatorResult->getHtml()
+    );
+    self::assertSame($expectedValidatorResult, $formValidatorResult->getErrorMessages());
+  }
+
+  /**
+   * @test
+   */
+  public function it_returns_false_if_form_rules_do_not_pass_again()
+  {
+    $formHTML = $this->getBasicValidForm();
+    $formData = [
+        'email' => 'foo@mailmailmailmailmailmail.com',
+    ];
+    $expectedValidatorResult = [
+        'email' => [
+            0 => '"foo@mailmailmailmailmailmail.com" is to long.',
+        ],
+    ];
+
+    $formValidator = new Validator($formHTML);
+    $formValidatorResult = $formValidator->validate($formData);
+
+    self::assertFalse($formValidatorResult->isSuccess());
+    self::assertContains(
+        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
+        $formValidator->getHtml()
+    );
+    self::assertContains(
+        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
         $formValidatorResult->getHtml()
     );
     self::assertSame($expectedValidatorResult, $formValidatorResult->getErrorMessages());
@@ -677,7 +779,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidator = new Validator($formHTML);
 
     self::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email" required="required">',
+        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
         $formValidator->getHtml()
     );
 

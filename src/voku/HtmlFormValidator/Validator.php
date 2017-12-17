@@ -10,8 +10,8 @@ use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Factory;
 use Respect\Validation\Rules\AbstractRule;
 use Respect\Validation\Rules\Email;
+use Respect\Validation\Rules\HexRgbColor;
 use Respect\Validation\Rules\Url;
-use Respect\Validation\Validator as RespectValidator;
 use voku\helper\HtmlDomParser;
 use voku\helper\SimpleHtmlDom;
 use voku\helper\UTF8;
@@ -45,6 +45,11 @@ class Validator
    * @var callable[]
    */
   private $filters_custom = [];
+
+  /**
+   * @var callable|null
+   */
+  private $translator;
 
   /**
    * @var ValidatorRulesManager
@@ -134,6 +139,7 @@ class Validator
     $matchingArray = [
         'email' => Email::class,
         'url'   => Url::class,
+        'color' => HexRgbColor::class,
 
         //
         // TODO@me -> take a look here
@@ -244,6 +250,14 @@ class Validator
   }
 
   /**
+   * @return callable|null
+   */
+  public function getTranslator()
+  {
+    return $this->translator;
+  }
+
+  /**
    * Find the first form on page or via css-selector, and parse <input>-elements.
    *
    * @return bool
@@ -317,6 +331,7 @@ class Validator
     $this->filters[$formHelperId][$inputName] = $inputFilter;
   }
 
+
   /**
    * Determine if element has validator attributes, and save the given rule.
    *
@@ -342,6 +357,18 @@ class Validator
     }
 
     $this->rules[$formHelperId][$inputName] = $inputRule;
+  }
+
+  /**
+   * @param callable $translator
+   *
+   * @return Validator
+   */
+  public function setTranslator(callable $translator): Validator
+  {
+    $this->translator = $translator;
+
+    return $this;
   }
 
   /**
@@ -387,6 +414,10 @@ class Validator
           }
 
           foreach ($fieldFilters as $fieldFilter) {
+
+            if (!$fieldFilter) {
+              continue;
+            }
             $currentFieldValue = $this->applyFilter($currentFieldValue, $fieldFilter);
           }
         }
@@ -421,40 +452,71 @@ class Validator
 
         foreach ($fieldRules as $fieldRule) {
 
-          $validationClass = $this->validatorRulesManager->getClassViaAlias($fieldRule);
+          if (!$fieldRule) {
+            continue;
+          }
 
-          if (!$validationClass instanceof AbstractRule) {
+          $validationClassArray = $this->validatorRulesManager->getClassViaAlias($fieldRule);
+
+          if ($validationClassArray['object']) {
+            $validationClass = $validationClassArray['object'];
+          } else if ($validationClassArray['class']) {
+            $validationClass = $validationClassArray['class'];
+          } else {
+            $validationClass = null;
+          }
+
+          $validationClassArgs = $validationClassArray['classArgs'] ?? null;
+
+          if ($validationClass instanceof AbstractRule) {
+
+            $respectValidator = $validationClass;
+
+          } else {
+
             try {
               $respectValidatorFactory = new Factory();
-              $respectValidatorFactory->rule($validationClass);
+              $respectValidatorFactory->prependRulePrefix('voku\\HtmlFormValidator\\Rules');
+
+              if ($validationClassArgs !== null) {
+                $respectValidator = $respectValidatorFactory->rule($validationClass, $validationClassArgs);
+              } else {
+                $respectValidator = $respectValidatorFactory->rule($validationClass);
+              }
+
             } catch (ComponentException $componentException) {
               throw new UnknownValidationRule(
-                  'No rule defined for: ' . $field . ' (rule: ' . $fieldRule . ')',
+                  'No rule defined for: ' . $field . ' (rule: ' . $fieldRule . ' | class: ' . $validationClass . ')',
                   500,
                   $componentException
               );
             }
+
           }
 
+          $hasPassed = false;
+          $translator = $this->getTranslator();
+
           try {
-
-            if (!$validationClass instanceof AbstractRule) {
-              $respectValidator = \call_user_func([RespectValidator::class, $validationClass]);
-            } else {
-              $respectValidator = $validationClass;
-            }
-
-            /* @var $respectValidator RespectValidator */
             $hasPassed = $respectValidator->assert($currentFieldValue);
+          } catch (NestedValidationException $nestedValidationException) {
 
-            if ($hasPassed === true) {
-              continue;
+            if ($translator) {
+              $nestedValidationException->setParam('translator', $translator);
             }
 
-          } catch (NestedValidationException $nestedValidationException) {
-            $validatorResult->setError($field, $nestedValidationException->getMessages());
+            $validatorResult->setError($field, $nestedValidationException->getFullMessage());
           } catch (ValidationException $validationException) {
+
+            if ($translator) {
+              $validationException->setParam('translator', $translator);
+            }
+
             $validatorResult->setError($field, $validationException->getMainMessage());
+          }
+
+          if ($hasPassed === true) {
+            continue;
           }
 
         }

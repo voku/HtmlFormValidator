@@ -1,5 +1,5 @@
 {
-  "name": "voku/HtmlFormValidator",
+  "name": "voku/html-form-validator",
   "description": "HTML <form> validation without trouble, easy filtering & validation.",
   "license": "MIT",
   "authors": [

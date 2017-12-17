@@ -345,6 +345,7 @@ class Validator
     }
 
     $inputName = $inputField->getAttribute('name');
+    $inputPattern = $inputField->getAttribute('pattern');
     $inputRule = $inputField->getAttribute('data-validator');
 
     if (strpos($inputRule, 'auto') !== false) {
@@ -355,6 +356,10 @@ class Validator
           $this->autoSelectRuleByInputType($inputType),
           $inputRule
       );
+    }
+
+    if ($inputPattern) {
+      $inputRule .= '|regex(/' . $inputPattern . '/)';
     }
 
     if ($inputField->hasAttribute('required')) {
@@ -412,11 +417,7 @@ class Validator
 
         if (isset($this->filters[$formHelperId][$field])) {
           $filtersOuter = $this->filters[$formHelperId][$field];
-          if (\strpos($filtersOuter, '|') !== false) {
-            $fieldFilters = \explode('|', $filtersOuter);
-          } else {
-            $fieldFilters = (array)$filtersOuter;
-          }
+          $fieldFilters = preg_split("/\|+(?![^\(]*\))/", $filtersOuter);
 
           foreach ($fieldFilters as $fieldFilter) {
 
@@ -450,11 +451,7 @@ class Validator
         // use the validation rules from the dom
         //
 
-        if (\strpos($fieldRuleOuter, '|') !== false) {
-          $fieldRules = \explode('|', $fieldRuleOuter);
-        } else {
-          $fieldRules = (array)$fieldRuleOuter;
-        }
+        $fieldRules = preg_split("/\|+(?![^\(?:]*\))/", $fieldRuleOuter);
 
         foreach ($fieldRules as $fieldRule) {
 

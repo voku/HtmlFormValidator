@@ -138,6 +138,21 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     ';
   }
 
+  protected function getBasicValidFromWithPattern()
+  {
+    return '
+    <form id="food">
+      <label for="choose">Would you prefer a banana or a cherry?</label>
+      <input  id="choose" 
+              name="i_like" 
+              required 
+              data-validator="auto"
+              pattern="banana|cherry">
+      <button>Submit</button>
+    </form>
+    ';
+  }
+
   protected function getFilterValidForm()
   {
     return '
@@ -300,7 +315,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
   }
 
-
   /**
    * @test
    */
@@ -365,6 +379,76 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame(
         [],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_custom_error_messages()
+  {
+    $formHTML = $this->getBasicValidFormWithSimpleArrayData();
+
+    $formValidator = new Validator($formHTML);
+    $formValidator->setTranslator(
+        function ($text) {
+          return 'Error: ' . $text;
+        }
+    );
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'register' => [
+                'user[email]' => 'email',
+                'user[name]'  => 'notEmpty|stringType',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(2, $rules['register']);
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail.com',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail.com',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [],
+        $formValidatorResult->getErrorMessages()
+    );
+
+    // ---
+
+    $formData = [
+        'user' => [
+            'email' => 'foo@isanemail',
+            'name'  => 'bar',
+        ],
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'user[email]' => [
+                0 => 'Error: "foo@isanemail" must be valid email',
+            ],
+        ],
         $formValidatorResult->getErrorMessages()
     );
   }
@@ -565,67 +649,43 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
   /**
    * @test
    */
-  public function it_can_use_custom_error_messages()
+  public function it_can_use_html5_pattern()
   {
-    $formHTML = $this->getBasicValidFormWithSimpleArrayData();
+    $formHTML = $this->getBasicValidFromWithPattern();
 
     $formValidator = new Validator($formHTML);
-    $formValidator->setTranslator(
-        function ($text) {
-          return 'Error: ' . $text;
-        }
-    );
+    $formValidator->addCustomRule('foobar', \Respect\Validation\Rules\CustomRule::class);
 
     $rules = $formValidator->getAllRules();
     self::assertSame(
         [
-            'register' => [
-                'user[email]' => 'email',
-                'user[name]'  => 'notEmpty|stringType',
+            'food' => [
+                'i_like' => '|regex(/banana|cherry/)',
             ],
         ],
         $rules
     );
-    self::assertCount(2, $rules['register']);
+    self::assertCount(1, $rules['food']);
 
-    // ---
+    // --- valid
 
     $formData = [
-        'user' => [
-            'email' => 'foo@isanemail.com',
-            'name'  => 'bar',
-        ],
+        'i_like' => 'banana',
     ];
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
+    // --- invalid
 
     $formData = [
-        'user' => [
-            'email' => 'foo@isanemail.com',
-            'name'  => 'bar',
-        ],
-    ];
-    $formValidatorResult = $formValidator->validate($formData);
-    self::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
-
-    // ---
-
-    $formData = [
-        'user' => [
-            'email' => 'foo@isanemail',
-            'name'  => 'bar',
-        ],
+        'email' => 'foo@isanemail.com',
+        'lall'  => 'noop',
     ];
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame(
         [
-            'user[email]' => [
-                0 => 'Error: "foo@isanemail" must be valid email',
+            'i_like' => [
+                0 => 'null must validate against "/banana|cherry/"',
             ],
         ],
         $formValidatorResult->getErrorMessages()

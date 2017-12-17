@@ -1,0 +1,25 @@
+{
+  "name": "voku/HtmlFormValidator",
+  "description": "todo",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Lars Moelleken",
+      "email": "lars@moelleken.org"
+    }
+  ],
+  "require": {
+    "php": ">=7.0.0",
+    "respect/validation": "~1.1",
+    "voku/simple_html_dom": "~4.1",
+    "voku/portable-utf8": "~4.0"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "~6.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "voku\\": "src/voku/"
+    }
+  }
+}

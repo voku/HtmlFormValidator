@@ -140,7 +140,6 @@ class Validator
         'email' => Email::class,
         'url'   => Url::class,
         'color' => HexRgbColor::class,
-        ''
 
         //
         // TODO@me -> take a look here

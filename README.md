@@ -19,7 +19,7 @@ background, so you can use this independent from your framework of choice.
 ## Install via "composer require"
 
 ```shell
-composer require voku/HtmlFormValidator
+composer require voku/html-form-validator
 ```
 
 ## Quick Start

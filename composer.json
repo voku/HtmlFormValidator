@@ -1,6 +1,6 @@
 {
   "name": "voku/HtmlFormValidator",
-  "description": "todo",
+  "description": "HTML <form> validation without trouble, easy filtering & validation.",
   "license": "MIT",
   "authors": [
     {

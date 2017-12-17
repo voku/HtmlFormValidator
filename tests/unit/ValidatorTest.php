@@ -411,7 +411,13 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formHTML = $this->getBasicValidFormCustom();
 
     $formValidator = new Validator($formHTML);
-    $formValidator->addCustomRule('foobar', v::intVal());
+    $formValidator->addCustomRule(
+        'foobar',
+        v::allOf(
+            v::intVal(),
+            v::positive()
+        )
+    );
 
     $rules = $formValidator->getAllRules();
     self::assertSame(
@@ -444,6 +450,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         [
             'lall' => [
                 0 => '"noop" must be an integer number',
+                1 => '"noop" must be positive',
             ],
         ],
         $formValidatorResult->getErrorMessages()
@@ -460,6 +467,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         [
             'lall' => [
                 0 => '"foobar" must be an integer number',
+                1 => '"foobar" must be positive',
             ],
         ],
         $formValidatorResult->getErrorMessages()

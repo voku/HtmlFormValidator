@@ -16,11 +16,13 @@ to validate your <form> data.
 We will use [Respect/Validation](https://github.com/Respect/Validation) in the 
 background, so you can use this independent from your framework of choice.
 
+
 ## Install via "composer require"
 
 ```shell
 composer require voku/html-form-validator
 ```
+
 
 ## Quick Start
 
@@ -76,6 +78,105 @@ $formValidatorResult->isSuccess(); // false
 // get the error messages
 $formValidatorResult->getErrorMessages(); // ['user[email]' => ['"foo@isanemail" must be valid email']]    
 ```
+
+## Validator
+
+You can use all validators from [here](https://github.com/Respect/Validation/blob/1.1/docs/VALIDATORS.md).
+
+e.g.: ```data-validator="date"``` (you need to lowercase the first letter from the class)
+
+You can combine validators simply via "|" ...
+
+e.g.: ```data-validator="notEmpty|floatVal"```
+
+... or if you need more complex validation. 
+
+```php
+$formValidator->addCustomRule(
+    'foobar',
+    v::allOf(
+        v::intVal(),
+        v::positive()
+    )
+);
+```
+
+e.g.: ```data-validator="foobar"```
+
+And if you need really complex validation, then you can create your own classes.
+
+```php
+<?php
+
+namespace Respect\Validation\Rules;
+
+class CustomRule extends AbstractRule
+{
+  /**
+   * @param string $value
+   *
+   * @return bool
+   */
+  public function validate($value)
+  {
+    return ($value === 'foobar');
+  }
+
+}
+```
+
+```php
+<?php
+
+namespace Respect\Validation\Exceptions;
+
+class CustomRuleException extends ValidationException
+{
+  public static $defaultTemplates = [
+      self::MODE_DEFAULT  => [
+          self::STANDARD => 'Invalid input... \'foobar\' is only allowed here... ', // eg: must be string
+      ],
+      self::MODE_NEGATIVE => [
+          self::STANDARD => 'Invalid input... \'foobar\' is not allowed here... ', // eg: must not be string
+      ],
+  ];
+}
+```
+
+```php
+$formValidator->addCustomRule('foobar', \Respect\Validation\Rules\CustomRule::class);
+```
+
+e.g.: ```data-validator="foobar"```
+
+
+## Filter
+
+You can also use some simple filters, that will be applied on the input-data.
+
+- trim
+- escape (htmlentities with ENT_QUOTES | ENT_HTML5)
+- ... and all methods from [here](https://github.com/voku/portable-utf8/blob/master/README.md)
+
+e.g.: ```data-filter="strip_tags"```
+
+And also here you can combine some filters simply via "|" ...
+
+e.g.: ```data-filter="strip_tags|trim|escape"```
+
+... and you can also add custom filters by your own.
+
+```php
+$formValidator->addCustomFilter(
+    'append_lall',
+    function ($input) {
+      return $input . 'lall';
+    }
+);
+```
+
+e.g.: ```data-filter="append_lall"```
+
 
 ## Unit Test
 

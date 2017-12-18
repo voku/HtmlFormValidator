@@ -50,8 +50,8 @@ $html = "
         id="username"
         name="user[name]"
         value=""
-        data-validator="notEmpty|stringType"
-        data-filter="strip_tags|trim|escape"
+        data-validator="notEmpty|maxLength(100)"
+        data-filter="strip_tags(<p>)|trim|escape"
         required="required"
     />
     
@@ -87,9 +87,19 @@ e.g.: ```data-validator="date"``` (you need to lowercase the first letter from t
 
 You can combine validators simply via "|" ...
 
-e.g.: ```data-validator="notEmpty|floatVal"```
+e.g.: ```data-validator="notEmpty|maxLength(100)"```
 
-... or if you need more complex validation. 
+PS: you can add arguments comma separated or you can use serialize -> something like that -> ```in(' . serialize($selectableValues) . ')```
+
+If you wan't to use the HTML5 validation e.g. for min or max values, or for e.g. email then you can use "auto".
+
+e.g.: ```data-validator="auto"```
+
+If you wan't to limit the submitted values to the values from the form e.g. for checkboxes or radios, then you can use "strict".
+
+e.g.: ```data-validator="strict"```
+
+And if you need a more complex validation, then you can add simple-custom validations.
 
 ```php
 $formValidator->addCustomRule(
@@ -158,7 +168,9 @@ You can also use some simple filters, that will be applied on the input-data.
 - escape (htmlentities with ENT_QUOTES | ENT_HTML5)
 - ... and all methods from [here](https://github.com/voku/portable-utf8/blob/master/README.md)
 
-e.g.: ```data-filter="strip_tags"```
+e.g.: ```data-filter="strip_tags(<p>)"```
+
+PS: the first argument will be the submitted value from the user
 
 And also here you can combine some filters simply via "|" ...
 

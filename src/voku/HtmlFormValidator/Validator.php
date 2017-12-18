@@ -43,6 +43,11 @@ class Validator
   /**
    * @var string[][]
    */
+  private $rules_namespaces;
+
+  /**
+   * @var string[][]
+   */
   private $filters = [];
 
   /**
@@ -71,6 +76,10 @@ class Validator
    */
   public function __construct($formHTML, $selector = '')
   {
+    $this->rules_namespaces['append'] = [];
+    $this->rules_namespaces['prepend'] = [];
+    $this->prependRulesNamespace('voku\\HtmlFormValidator\\Rules');
+
     $this->validatorRulesManager = new ValidatorRulesManager();
 
     $this->formDocument = HtmlDomParser::str_get_html($formHTML);
@@ -179,6 +188,19 @@ class Validator
   }
 
   /**
+   * @param string $phpNamespace
+   *
+   * @return string
+   */
+  private function filterRulesNamespace(string $phpNamespace): string
+  {
+    $namespaceSeparator = '\\';
+    $rulePrefix = \rtrim($phpNamespace, $namespaceSeparator);
+
+    return $rulePrefix . $namespaceSeparator;
+  }
+
+  /**
    * Get the filters that will be applied.
    *
    * @return string[][]
@@ -278,14 +300,6 @@ class Validator
   }
 
   /**
-   * @return callable|null
-   */
-  public function getTranslator()
-  {
-    return $this->translator;
-  }
-
-  /**
    * Find the first form on page or via css-selector, and parse <input>-elements.
    *
    * @return bool
@@ -360,7 +374,6 @@ class Validator
 
     $this->filters[$formHelperId][$inputName] = $inputFilter;
   }
-
 
   /**
    * Determine if element has validator attributes, and save the given rule.
@@ -476,6 +489,38 @@ class Validator
   }
 
   /**
+   * @param string $phpNamespace <p>e.g.: "voku\\HtmlFormValidator\\Rules"</p>
+   *
+   * @return $this
+   */
+  public function appendRulesNamespace(string $phpNamespace): self
+  {
+    \array_push($this->rules_namespaces['append'], $this->filterRulesNamespace($phpNamespace));
+
+    return $this;
+  }
+
+  /**
+   * @param string $phpNamespace <p>e.g.: "voku\\HtmlFormValidator\\Rules"</p>
+   *
+   * @return $this
+   */
+  public function prependRulesNamespace(string $phpNamespace): self
+  {
+    \array_unshift($this->rules_namespaces['prepend'], $this->filterRulesNamespace($phpNamespace));
+
+    return $this;
+  }
+
+  /**
+   * @return callable|null
+   */
+  public function getTranslator()
+  {
+    return $this->translator;
+  }
+
+  /**
    * @param callable $translator
    *
    * @return Validator
@@ -583,9 +628,15 @@ class Validator
 
           } else {
 
+            $respectValidatorFactory = new Factory();
+            foreach ($this->rules_namespaces['prepend'] as $rules_namespace) {
+              $respectValidatorFactory->prependRulePrefix($rules_namespace);
+            }
+            foreach ($this->rules_namespaces['append'] as $rules_namespace) {
+              $respectValidatorFactory->appendRulePrefix($rules_namespace);
+            }
+
             try {
-              $respectValidatorFactory = new Factory();
-              $respectValidatorFactory->prependRulePrefix('voku\\HtmlFormValidator\\Rules');
 
               if ($validationClassArgs !== null) {
                 $respectValidator = $respectValidatorFactory->rule($validationClass, $validationClassArgs);

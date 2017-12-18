@@ -40,7 +40,7 @@ class ValidatorHelpers
 
           if ($arg === 'true' || $arg === 'false') {
             $arg = (bool)$arg;
-          } else if ($args === 'null') {
+          } elseif ($args === 'null') {
             $arg = null;
           }
 

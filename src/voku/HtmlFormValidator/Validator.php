@@ -439,7 +439,7 @@ class Validator
         }
         $inputRule .= '|in(' . serialize($selectableValues) . ')';
 
-      } else if (
+      } elseif (
           (
               $inputType == 'checkbox'
               ||
@@ -480,7 +480,7 @@ class Validator
    *
    * @return Validator
    */
-  public function setTranslator(callable $translator): Validator
+  public function setTranslator(callable $translator): self
   {
     $this->translator = $translator;
 
@@ -569,7 +569,7 @@ class Validator
 
           if ($validationClassArray['object']) {
             $validationClass = $validationClassArray['object'];
-          } else if ($validationClassArray['class']) {
+          } elseif ($validationClassArray['class']) {
             $validationClass = $validationClassArray['class'];
           } else {
             $validationClass = null;

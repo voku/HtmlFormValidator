@@ -82,7 +82,7 @@ class ValidatorResult
    *
    * @return ValidatorResult
    */
-  public function setError(string $field, $errorMsg): ValidatorResult
+  public function setError(string $field, $errorMsg): self
   {
     try {
       $inputTag = $this->formDocument->find('[name=' . $field . ']', 0);
@@ -106,7 +106,7 @@ class ValidatorResult
     return $this;
   }
 
-  public function setValues(string $field, $value): ValidatorResult
+  public function setValues(string $field, $value): self
   {
     $this->values[$field] = $value;
 

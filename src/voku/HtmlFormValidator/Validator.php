@@ -11,7 +11,9 @@ use Respect\Validation\Factory;
 use Respect\Validation\Rules\AbstractRule;
 use Respect\Validation\Rules\Email;
 use Respect\Validation\Rules\HexRgbColor;
+use Respect\Validation\Rules\Numeric;
 use Respect\Validation\Rules\Url;
+use Symfony\Component\CssSelector\Exception\SyntaxErrorException;
 use voku\helper\HtmlDomParser;
 use voku\helper\SimpleHtmlDom;
 use voku\helper\UTF8;
@@ -137,9 +139,10 @@ class Validator
   public function autoSelectRuleByInputType(string $type)
   {
     $matchingArray = [
-        'email' => Email::class,
-        'url'   => Url::class,
-        'color' => HexRgbColor::class,
+        'email'  => Email::class,
+        'url'    => Url::class,
+        'color'  => HexRgbColor::class,
+        'number' => Numeric::class,
 
         //
         // TODO@me -> take a look here
@@ -288,16 +291,18 @@ class Validator
       $formHelperId = \uniqid('html-form-validator-tmp', true);
     }
 
+    $formTagSelector = 'input, textarea, select';
+
     // get the <input>-elements from the form
-    $inputFromFields = $form->getElementsByTagName('input');
+    $inputFromFields = $form->find($formTagSelector);
     foreach ($inputFromFields as $inputFormField) {
-      $this->parseInputForRules($inputFormField, $formHelperId);
+      $this->parseInputForRules($inputFormField, $formHelperId, $form);
       $this->parseInputForFilter($inputFormField, $formHelperId);
     }
 
     // get the <input>-elements with a matching form="id"
     if (\strpos($formHelperId, 'html-form-validator-tmp') !== 0) {
-      $inputFromFieldsTmpAll = $this->formDocument->find('input');
+      $inputFromFieldsTmpAll = $this->formDocument->find($formTagSelector);
       foreach ($inputFromFieldsTmpAll as $inputFromFieldTmp) {
         if ($inputFromFieldTmp->form == $formHelperId) {
           $this->parseInputForRules($inputFromFieldTmp, $formHelperId);
@@ -335,34 +340,110 @@ class Validator
   /**
    * Determine if element has validator attributes, and save the given rule.
    *
-   * @param SimpleHtmlDom $inputField
-   * @param string        $formHelperId
+   * @param SimpleHtmlDom      $formField
+   * @param string             $formHelperId
+   * @param SimpleHtmlDom|null $form
    */
-  private function parseInputForRules(SimpleHtmlDom $inputField, string $formHelperId)
+  private function parseInputForRules(SimpleHtmlDom $formField, string $formHelperId, SimpleHtmlDom $form = null)
   {
-    if (!$inputField->hasAttribute('data-validator')) {
+    if (!$formField->hasAttribute('data-validator')) {
       return;
     }
 
-    $inputName = $inputField->getAttribute('name');
-    $inputPattern = $inputField->getAttribute('pattern');
-    $inputRule = $inputField->getAttribute('data-validator');
+    $inputName = $formField->getAttribute('name');
+    $inputType = $formField->getAttribute('type');
+    $inputPattern = $formField->getAttribute('pattern');
+    $inputRule = $formField->getAttribute('data-validator');
+
+    $inputMinLength = $formField->getAttribute('minlength');
+    $inputMaxLength = $formField->getAttribute('maxlength');
+
+    $inputMin = $formField->getAttribute('min');
+    $inputMax = $formField->getAttribute('max');
 
     if (strpos($inputRule, 'auto') !== false) {
-      $inputType = $inputField->getAttribute('type');
 
-      $inputRule = str_replace(
-          'auto',
-          $this->autoSelectRuleByInputType($inputType),
-          $inputRule
-      );
+      //
+      // select default rule by input-type
+      //
+
+      if ($inputType) {
+        $selectedRule = $this->autoSelectRuleByInputType($inputType);
+        if ($selectedRule) {
+          $inputRule .= '|' . $selectedRule;
+        }
+      }
+
+      //
+      // html5 pattern to regex
+      //
+
+      if ($inputPattern) {
+        $inputRule .= '|regex(/' . $inputPattern . '/)';
+      }
+
+      //
+      // min- / max values
+      //
+
+      if ($inputMinLength) {
+        $inputRule .= '|minLength(' . serialize($inputMinLength) . ')';
+      }
+
+      if ($inputMaxLength) {
+        $inputRule .= '|maxLength(' . serialize($inputMaxLength) . ')';
+      }
+
+      if ($inputMin) {
+        $inputRule .= '|min(' . serialize($inputMin) . ')';
+      }
+
+      if ($inputMax) {
+        $inputRule .= '|max(' . serialize($inputMax) . ')';
+      }
+
     }
 
-    if ($inputPattern) {
-      $inputRule .= '|regex(/' . $inputPattern . '/)';
+    if (strpos($inputRule, 'strict') !== false) {
+
+      if ($formField->tag === 'select') {
+
+        $selectableValues = [];
+        foreach ($formField->getElementsByTagName('option') as $option) {
+          $selectableValues[] = $option->getNode()->nodeValue;
+        }
+        $inputRule .= '|in(' . serialize($selectableValues) . ')';
+
+      } else if (
+          (
+              $inputType == 'checkbox'
+              ||
+              $inputType == 'radio'
+          )
+          &&
+          $form) {
+
+        $selectableValues = [];
+
+        try {
+          $formFieldNames = $form->find('[name=' . $formField->name . ']');
+        } catch (SyntaxErrorException $syntaxErrorException) {
+          $formFieldNames = null;
+          // TODO@me -> can the symfony CssSelectorConverter use array-name-attributes?
+        }
+
+        if ($formFieldNames) {
+          foreach ($formFieldNames as $formFieldName) {
+            $selectableValues[] = $formFieldName->value;
+          }
+        }
+
+        $inputRule .= '|in(' . serialize($selectableValues) . ')';
+
+      }
     }
 
-    if ($inputField->hasAttribute('required')) {
+    if ($formField->hasAttribute('required')) {
       $this->required_rules[$formHelperId][$inputName] = $inputRule;
     }
 

@@ -5,6 +5,74 @@ use voku\HtmlFormValidator\Validator;
 
 class ValidatorTest extends \PHPUnit\Framework\TestCase
 {
+  protected function getBasicCheckboxFormStrict()
+  {
+    return '
+    <form id="food"> 
+      <h3>Kreuzen Sie die gewünschten Zutaten an:</h3> 
+      <fieldset>
+        <ul>
+          <li> 
+            <label>
+              <input type="checkbox" name="zutat" data-validator="strict" value="salami">
+              Salami
+            </label>
+          </li>
+          <li> 
+            <label>
+               <input type="checkbox" name="zutat" data-validator="strict" value="schinken">
+               Schinken
+            </label>
+          </li>
+          <li>  
+            <label>
+              <input type="checkbox" name="zutat" data-validator="strict" value="sardellen">
+              Sardellen
+            </label>
+          </li>
+        </ul> 
+      </fieldset> 
+    </form>
+    ';
+  }
+
+  protected function getBasicRadioFormStrict()
+  {
+    return '
+    <form id="billing">
+      <p>Geben Sie Ihre Zahlungsweise an:</p>
+      <fieldset>
+        <input type="radio" id="mc" data-validator="strict" name="Zahlmethode" value="Mastercard">
+        <label for="mc"> Mastercard</label> 
+        <input type="radio" id="vi" data-validator="strict" name="Zahlmethode" value="Visa">
+        <label for="vi"> Visa</label>
+        <input type="radio" id="ae" data-validator="strict" name="Zahlmethode" value="AmericanExpress">
+        <label for="ae"> American Express</label> 
+      </fieldset>
+    </form>
+    ';
+  }
+
+  protected function getBasicSelectFormStrict()
+  {
+    return '
+    <form action="%s" id="music">
+      <label>Künstler(in):
+        <select name="top5"
+                required
+                data-validator="strict|maxLength(10)"   
+        >
+          <option>Heino</option>
+          <option>Michael Jackson</option>
+          <option>Tom Waits</option>
+          <option>Nina Hagen</option>
+          <option>Marianne Rosenberg</option>
+        </select>
+      </label>
+    </form>
+    ';
+  }
+
   protected function getBasicValidForm()
   {
     return '
@@ -264,7 +332,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'user-register' => [
-                'user[1][email]' => 'Respect\Validation\Rules\Email|maxLength(200)',
+                'user[1][email]' => 'auto|maxLength(200)|Respect\Validation\Rules\Email',
                 'user[2][name]'  => 'notEmpty',
             ],
         ],
@@ -660,7 +728,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'food' => [
-                'i_like' => '|regex(/banana|cherry/)',
+                'i_like' => 'auto|regex(/banana|cherry/)',
             ],
         ],
         $rules
@@ -686,6 +754,153 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         [
             'i_like' => [
                 0 => 'null must validate against "/banana|cherry/"',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_html_checkbox_strict()
+  {
+    $formHTML = $this->getBasicCheckboxFormStrict();
+
+    $formValidator = new Validator($formHTML);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'food' => [
+                'zutat' => 'strict|in(a:3:{i:0;s:6:"salami";i:1;s:8:"schinken";i:2;s:9:"sardellen";})',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(1, $rules['food']);
+
+    // --- valid
+
+    $formData = [
+        'zutat' => 'salami',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // --- invalid
+
+    $formData = [
+        'zutat' => 'fooooo',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'zutat' => [
+                0 => '"fooooo" must be in { "salami", "schinken", "sardellen" }',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_html_radio_strict()
+  {
+    $formHTML = $this->getBasicRadioFormStrict();
+
+    $formValidator = new Validator($formHTML);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'billing' => [
+                'Zahlmethode' => 'strict|in(a:3:{i:0;s:10:"Mastercard";i:1;s:4:"Visa";i:2;s:15:"AmericanExpress";})',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(1, $rules['billing']);
+
+    // --- valid
+
+    $formData = [
+        'Zahlmethode' => 'Mastercard',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // --- invalid
+
+    $formData = [
+        'Zahlmethode' => 'fooooo',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'Zahlmethode' => [
+                0 => '"fooooo" must be in { "Mastercard", "Visa", "AmericanExpress" }',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_html_select_strict()
+  {
+    $formHTML = $this->getBasicSelectFormStrict();
+
+    $formValidator = new Validator($formHTML);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'music' => [
+                'top5' => 'strict|maxLength(10)|in(a:5:{i:0;s:5:"Heino";i:1;s:15:"Michael Jackson";i:2;s:9:"Tom Waits";i:3;s:10:"Nina Hagen";i:4;s:18:"Marianne Rosenberg";})',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(1, $rules['music']);
+
+    // --- valid
+
+    $formData = [
+        'top5' => 'Heino',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+
+    // --- invalid
+
+    $formData = [
+        'top5' => 'Michael Jackson',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'top5' => [
+                0 => '"Michael Jackson" is to long.',
+            ],
+        ], $formValidatorResult->getErrorMessages()
+    );
+
+    // --- invalid
+
+    $formData = [
+        'top5' => 'fooooo',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'top5' => [
+                0 => '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
             ],
         ],
         $formValidatorResult->getErrorMessages()
@@ -928,7 +1143,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'register' => [
-                'email' => 'Respect\Validation\Rules\Email',
+                'email' => 'auto|Respect\Validation\Rules\Email',
             ],
         ],
         $formValidator->getAllRules()
@@ -950,7 +1165,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'register' => [
-                'email' => 'Respect\Validation\Rules\Email',
+                'email' => 'auto|Respect\Validation\Rules\Email',
             ],
         ],
         $formValidator->getAllRules()

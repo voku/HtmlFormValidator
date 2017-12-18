@@ -86,9 +86,13 @@ class ValidatorResult
   {
     try {
       $inputTag = $this->formDocument->find('[name=' . $field . ']', 0);
-      $inputTag->setAttribute('aria-invalid', 'true');
     } catch (SyntaxErrorException $syntaxErrorException) {
-      // TODO@me? -> can the symfony CssSelectorConverter use array-name-attributes?
+      $inputTag = null;
+      // TODO@me -> can the symfony CssSelectorConverter use array-name-attributes?
+    }
+
+    if ($inputTag) {
+      $inputTag->setAttribute('aria-invalid', 'true');
     }
 
     if (\is_array($errorMsg) === true) {

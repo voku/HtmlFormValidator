@@ -264,7 +264,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
             name="username"
             value=""
             data-validator="notEmpty"
-            data-filter="strip_tags|trim|escape"
+            data-filter="strip_tags(<p>)|trim|escape"
             required="required"
         />
     </div>
@@ -1096,7 +1096,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'email'    => 'foo@example.com',
-            'username' => 'lall',
+            'username' => '&lt;p onclick&equals;&quot;alert&lpar;&apos;hacked&apos;&rpar;&quot;&gt;lall&lt;&sol;p&gt;'
         ],
         $formValidatorResult->getValues()
     );

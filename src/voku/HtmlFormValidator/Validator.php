@@ -109,19 +109,40 @@ class Validator
       return null;
     }
 
-    if (isset($this->filters_custom[$fieldFilter])) {
-      return \call_user_func($this->filters_custom[$fieldFilter], $currentFieldData);
-    }
+    //
+    // fixed filters
+    //
 
     switch ($fieldFilter) {
-      case 'trim':
-        return \trim($currentFieldData);
-      case 'escape':
+     case 'escape':
         return \htmlentities($currentFieldData, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
+    //
+    // get arguments
+    //
+
+    list($fieldFilter, $fieldFilterArgs) = ValidatorHelpers::getArgsFromString($fieldFilter);
+
+    $currentFieldData = (array)$currentFieldData;
+    foreach ($fieldFilterArgs as $arg) {
+      $currentFieldData[] = $arg;
+    }
+
+    //
+    // custom filters
+    //
+
+    if (isset($this->filters_custom[$fieldFilter])) {
+      return \call_user_func_array($this->filters_custom[$fieldFilter], $currentFieldData);
+    }
+
+    //
+    // dynamic filters
+    //
+
     if (method_exists(UTF8::class, $fieldFilter)) {
-      $currentFieldData = \call_user_func([UTF8::class, $fieldFilter], $currentFieldData);
+      $currentFieldData = \call_user_func_array([UTF8::class, $fieldFilter], $currentFieldData);
     } else {
       throw new UnknownFilter(
           'No filter available for "' . $fieldFilter . '"'

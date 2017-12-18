@@ -60,7 +60,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
       <label>Künstler(in):
         <select name="top5"
                 required
-                data-validator="strict|maxLength(10)"   
+                data-validator="strict|maxLength(10)|minLength(1)"   
         >
           <option>Heino</option>
           <option>Michael Jackson</option>
@@ -340,7 +340,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(2, $rules['user-register']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'user' => [
@@ -351,21 +351,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
-
-    $formData = [
-        'user' => [
-            '1' => ['email' => 'foo@isanemail.com'],
-            '2' => ['name' => 'bar'],
-        ],
-    ];
-    $formValidatorResult = $formValidator->validate($formData);
-    self::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
-
-    // ---
+    // --- invalid
 
     $formData = [
         'user' => [
@@ -398,7 +384,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $rules
     );
 
-    // ---
+    // --- filter
 
     $filter = $formValidator->getAllFilters();
     self::assertSame(
@@ -411,44 +397,15 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(1, $filter['lall-form']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'user' => [
-            '1' => ['email' => 'foo@isanemail.com'],
-            '2' => ['name' => 'bar'],
+            '1' => ['name' => 'bar'],
         ],
     ];
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
-
-    // ---
-
-    $formData = [
-        'user' => [
-            '1' => ['email' => 'foo@isanemail.com'],
-            '2' => ['name' => 'bar'],
-        ],
-    ];
-    $formValidatorResult = $formValidator->validate($formData);
-    self::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
-
-    // ---
-
-    $formData = [
-        'user' => [
-            '1' => ['email' => 'foo@isanemail'],
-            '2' => ['name' => 'bar'],
-        ],
-    ];
-    $formValidatorResult = $formValidator->validate($formData);
-    self::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
   }
 
   /**
@@ -477,7 +434,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(2, $rules['register']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'user' => [
@@ -488,21 +445,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
-
-    $formData = [
-        'user' => [
-            'email' => 'foo@isanemail.com',
-            'name'  => 'bar',
-        ],
-    ];
-    $formValidatorResult = $formValidator->validate($formData);
-    self::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
-
-    // ---
+    // --- invalid
 
     $formData = [
         'user' => [
@@ -548,7 +491,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(2, $rules['foo']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -556,7 +499,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
+    // --- valid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -575,7 +518,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult->getErrorMessages()
     );
 
-    // ---
+    // --- valid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -607,7 +550,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(2, $rules['foo']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -615,7 +558,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
+    // --- invalid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -631,7 +574,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult->getErrorMessages()
     );
 
-    // ---
+    // --- valid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -669,7 +612,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(2, $rules['foo']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -677,7 +620,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
+    // --- invalid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -695,7 +638,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult->getErrorMessages()
     );
 
-    // ---
+    // --- invalid
 
     $formData = [
         'email' => 'foo@isanemail.com',
@@ -861,7 +804,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'music' => [
-                'top5' => 'strict|maxLength(10)|in(a:5:{i:0;s:5:"Heino";i:1;s:15:"Michael Jackson";i:2;s:9:"Tom Waits";i:3;s:10:"Nina Hagen";i:4;s:18:"Marianne Rosenberg";})',
+                'top5' => 'strict|maxLength(10)|minLength(1)|in(a:5:{i:0;s:5:"Heino";i:1;s:15:"Michael Jackson";i:2;s:9:"Tom Waits";i:3;s:10:"Nina Hagen";i:4;s:18:"Marianne Rosenberg";})',
             ],
         ],
         $rules
@@ -875,7 +818,6 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     ];
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
-
 
     // --- invalid
 
@@ -928,7 +870,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     );
     self::assertCount(2, $rules['register']);
 
-    // ---
+    // --- valid
 
     $formData = [
         'user' => [
@@ -939,21 +881,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     $formValidatorResult = $formValidator->validate($formData);
     self::assertSame([], $formValidatorResult->getErrorMessages());
 
-    // ---
-
-    $formData = [
-        'user' => [
-            'email' => 'foo@isanemail.com',
-            'name'  => 'bar',
-        ],
-    ];
-    $formValidatorResult = $formValidator->validate($formData);
-    self::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
-
-    // ---
+    // --- invalid
 
     $formData = [
         'user' => [
@@ -1096,7 +1024,7 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     self::assertSame(
         [
             'email'    => 'foo@example.com',
-            'username' => '&lt;p onclick&equals;&quot;alert&lpar;&apos;hacked&apos;&rpar;&quot;&gt;lall&lt;&sol;p&gt;'
+            'username' => '&lt;p onclick&equals;&quot;alert&lpar;&apos;hacked&apos;&rpar;&quot;&gt;lall&lt;&sol;p&gt;',
         ],
         $formValidatorResult->getValues()
     );

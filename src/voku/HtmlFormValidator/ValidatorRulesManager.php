@@ -52,12 +52,12 @@ class ValidatorRulesManager
     }
 
     // remove the namespace
-    if (\strpos($classWithNamespace, "\\") !== false) {
+    if (\strpos($classWithNamespace, '\\') !== false) {
       $class =
           \substr(
               \strrchr(
                   $classWithNamespace,
-                  "\\"
+                  '\\'
               ),
               1
 

@@ -11,7 +11,7 @@
 ## Description
 
 HtmlFormValidator is a very easy to use PHP library that will help you 
-to validate your <form> data.
+to validate your ```<form>``` data.
 
 We will use [Respect/Validation](https://github.com/Respect/Validation) in the 
 background, so you can use this independent from your framework of choice.

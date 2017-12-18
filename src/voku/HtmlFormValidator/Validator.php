@@ -9,9 +9,11 @@ use Respect\Validation\Exceptions\NestedValidationException;
 use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Factory;
 use Respect\Validation\Rules\AbstractRule;
+use Respect\Validation\Rules\Date;
 use Respect\Validation\Rules\Email;
 use Respect\Validation\Rules\HexRgbColor;
 use Respect\Validation\Rules\Numeric;
+use Respect\Validation\Rules\Phone;
 use Respect\Validation\Rules\Url;
 use Symfony\Component\CssSelector\Exception\SyntaxErrorException;
 use voku\helper\HtmlDomParser;
@@ -114,7 +116,7 @@ class Validator
     //
 
     switch ($fieldFilter) {
-     case 'escape':
+      case 'escape':
         return \htmlentities($currentFieldData, ENT_QUOTES | ENT_HTML5, 'UTF-8');
     }
 
@@ -164,11 +166,13 @@ class Validator
         'url'    => Url::class,
         'color'  => HexRgbColor::class,
         'number' => Numeric::class,
-
-        //
-        // TODO@me -> take a look here
-        // -> https://github.com/xtreamwayz/html-form-validator/blob/master/src/FormElement/Number.php
-        //
+        'date'   => Date::class,
+        'range'  => Numeric::class,
+        'tel'    => Phone::class,
+        // -> this need localisation e.g. for german / us / etc.
+        //'time'   => Time::class,
+        //'month'  => Month::class,
+        //'week'   => Week::class,
     ];
 
     return $matchingArray[$type] ?? null;

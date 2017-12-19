@@ -328,7 +328,7 @@ class Validator
 
       $htmlElementHelperId = $htmlElement->id;
 
-    } else if ($this->selector) {
+    } elseif ($this->selector) {
 
       $htmlElementHelperId = 'html-element-validator-tmp-' . $this->selector;
 

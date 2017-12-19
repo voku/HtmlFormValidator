@@ -28,7 +28,7 @@ class Validator
   /**
    * @var HtmlDomParser
    */
-  private $formDocument;
+  private $htmlElementDocument;
 
   /**
    * @var string[][]
@@ -71,10 +71,10 @@ class Validator
   private $selector;
 
   /**
-   * @param string $formHTML
+   * @param string $html
    * @param string $selector
    */
-  public function __construct($formHTML, $selector = '')
+  public function __construct($html, $selector = '')
   {
     $this->rules_namespaces['append'] = [];
     $this->rules_namespaces['prepend'] = [];
@@ -82,7 +82,7 @@ class Validator
 
     $this->validatorRulesManager = new ValidatorRulesManager();
 
-    $this->formDocument = HtmlDomParser::str_get_html($formHTML);
+    $this->htmlElementDocument = HtmlDomParser::str_get_html($html);
     $this->selector = $selector;
 
     $this->parseHtmlDomForRules();
@@ -221,12 +221,12 @@ class Validator
   }
 
   /**
-   * @param array  $formValues
+   * @param array  $htmlElementValues
    * @param string $field
    *
    * @return mixed|null
    */
-  private function getCurrentFieldValue(array $formValues, string $field)
+  private function getCurrentFieldValue(array $htmlElementValues, string $field)
   {
     $fieldArrayPos = UTF8::strpos($field, '[');
     if ($fieldArrayPos !== false) {
@@ -254,28 +254,28 @@ class Validator
 
       switch ($i) {
         case 4:
-          if (isset($formValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]][$fieldHelper[3]])) {
-            $currentFieldValue = $formValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]][$fieldHelper[3]];
+          if (isset($htmlElementValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]][$fieldHelper[3]])) {
+            $currentFieldValue = $htmlElementValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]][$fieldHelper[3]];
           }
           break;
         case 3:
-          if (isset($formValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]])) {
-            $currentFieldValue = $formValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]];
+          if (isset($htmlElementValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]])) {
+            $currentFieldValue = $htmlElementValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]][$fieldHelper[2]];
           }
           break;
         case 2:
-          if (isset($formValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]])) {
-            $currentFieldValue = $formValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]];
+          if (isset($htmlElementValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]])) {
+            $currentFieldValue = $htmlElementValues[$fieldStart][$fieldHelper[0]][$fieldHelper[1]];
           }
           break;
         case 1:
-          if (isset($formValues[$fieldStart][$fieldHelper[0]])) {
-            $currentFieldValue = $formValues[$fieldStart][$fieldHelper[0]];
+          if (isset($htmlElementValues[$fieldStart][$fieldHelper[0]])) {
+            $currentFieldValue = $htmlElementValues[$fieldStart][$fieldHelper[0]];
           }
           break;
       }
     } else {
-      $currentFieldValue = $formValues[$field] ?? null;
+      $currentFieldValue = $htmlElementValues[$field] ?? null;
     }
 
     return $currentFieldValue;
@@ -286,7 +286,7 @@ class Validator
    */
   public function getHtml(): string
   {
-    return $this->formDocument->html();
+    return $this->htmlElementDocument->html();
   }
 
   /**
@@ -300,7 +300,7 @@ class Validator
   }
 
   /**
-   * Find the first form on page or via css-selector, and parse <input>-elements.
+   * Find the first html-element on page or via css-selector, and parse <input>-elements.
    *
    * @return bool
    */
@@ -308,58 +308,72 @@ class Validator
   {
     // init
     $this->rules = [];
-    $inputForm = [];
+    $inputHtmlElement = [];
 
     if ($this->selector) {
-      $forms = $this->formDocument->find($this->selector);
+      $htmlElements = $this->htmlElementDocument->find($this->selector);
     } else {
-      $forms = $this->formDocument->find('form');
+      $htmlElements = $this->htmlElementDocument->find('form');
     }
 
-    if (\count($forms) === 0) {
+    if (\count($htmlElements) === 0) {
       return false;
     }
 
-    // get the first form
-    $form = $forms[0];
+    // get the first found html-element
+    $htmlElement = $htmlElements[0];
 
-    // get the from-id
-    if ($form->id) {
-      $formHelperId = $form->id;
+    // get the "<form>"-id
+    if ($htmlElement->id) {
+
+      $htmlElementHelperId = $htmlElement->id;
+
+    } else if ($this->selector) {
+
+      $htmlElementHelperId = 'html-element-validator-tmp-' . $this->selector;
+
     } else {
-      $formHelperId = \uniqid('html-form-validator-tmp', true);
+
+      $cssClassesTmp = str_replace(
+          ' ',
+          '.',
+          $htmlElement->getAttribute('class')
+      );
+      $fakeCssSelector = $htmlElement->getNode()->getNodePath() . '/' . $cssClassesTmp;
+
+      $htmlElementHelperId = 'html-element-validator-tmp-' . $fakeCssSelector;
     }
 
-    $formTagSelector = 'input, textarea, select';
+    $htmlElementTagSelector = 'input, textarea, select';
 
-    // get the <input>-elements from the form
-    $inputFromFields = $form->find($formTagSelector);
-    foreach ($inputFromFields as $inputFormField) {
-      $this->parseInputForRules($inputFormField, $formHelperId, $form);
-      $this->parseInputForFilter($inputFormField, $formHelperId);
+    // get the <input>-elements from the htmlElement
+    $inputFromFields = $htmlElement->find($htmlElementTagSelector);
+    foreach ($inputFromFields as $inputhtmlElementField) {
+      $this->parseInputForRules($inputhtmlElementField, $htmlElementHelperId, $htmlElement);
+      $this->parseInputForFilter($inputhtmlElementField, $htmlElementHelperId);
     }
 
     // get the <input>-elements with a matching form="id"
-    if (\strpos($formHelperId, 'html-form-validator-tmp') !== 0) {
-      $inputFromFieldsTmpAll = $this->formDocument->find($formTagSelector);
+    if (\strpos($htmlElementHelperId, 'html-element-validator-tmp') !== 0) {
+      $inputFromFieldsTmpAll = $this->htmlElementDocument->find($htmlElementTagSelector);
       foreach ($inputFromFieldsTmpAll as $inputFromFieldTmp) {
-        if ($inputFromFieldTmp->form == $formHelperId) {
-          $this->parseInputForRules($inputFromFieldTmp, $formHelperId);
-          $this->parseInputForFilter($inputFromFieldTmp, $formHelperId);
+        if ($inputFromFieldTmp->form == $htmlElementHelperId) {
+          $this->parseInputForRules($inputFromFieldTmp, $htmlElementHelperId);
+          $this->parseInputForFilter($inputFromFieldTmp, $htmlElementHelperId);
         }
       }
     }
 
-    return (\count($inputForm) >= 0);
+    return (\count($inputHtmlElement) >= 0);
   }
 
   /**
    * Determine if element has filter attributes, and save the given filter.
    *
    * @param SimpleHtmlDom $inputField
-   * @param string        $formHelperId
+   * @param string        $htmlElementHelperId
    */
-  private function parseInputForFilter(SimpleHtmlDom $inputField, string $formHelperId)
+  private function parseInputForFilter(SimpleHtmlDom $inputField, string $htmlElementHelperId)
   {
     if (!$inputField->hasAttribute('data-filter')) {
       return;
@@ -372,32 +386,32 @@ class Validator
       $inputFilter = 'htmlentities';
     }
 
-    $this->filters[$formHelperId][$inputName] = $inputFilter;
+    $this->filters[$htmlElementHelperId][$inputName] = $inputFilter;
   }
 
   /**
    * Determine if element has validator attributes, and save the given rule.
    *
-   * @param SimpleHtmlDom      $formField
-   * @param string             $formHelperId
-   * @param SimpleHtmlDom|null $form
+   * @param SimpleHtmlDom      $htmlElementField
+   * @param string             $htmlElementHelperId
+   * @param SimpleHtmlDom|null $htmlElement
    */
-  private function parseInputForRules(SimpleHtmlDom $formField, string $formHelperId, SimpleHtmlDom $form = null)
+  private function parseInputForRules(SimpleHtmlDom $htmlElementField, string $htmlElementHelperId, SimpleHtmlDom $htmlElement = null)
   {
-    if (!$formField->hasAttribute('data-validator')) {
+    if (!$htmlElementField->hasAttribute('data-validator')) {
       return;
     }
 
-    $inputName = $formField->getAttribute('name');
-    $inputType = $formField->getAttribute('type');
-    $inputPattern = $formField->getAttribute('pattern');
-    $inputRule = $formField->getAttribute('data-validator');
+    $inputName = $htmlElementField->getAttribute('name');
+    $inputType = $htmlElementField->getAttribute('type');
+    $inputPattern = $htmlElementField->getAttribute('pattern');
+    $inputRule = $htmlElementField->getAttribute('data-validator');
 
-    $inputMinLength = $formField->getAttribute('minlength');
-    $inputMaxLength = $formField->getAttribute('maxlength');
+    $inputMinLength = $htmlElementField->getAttribute('minlength');
+    $inputMaxLength = $htmlElementField->getAttribute('maxlength');
 
-    $inputMin = $formField->getAttribute('min');
-    $inputMax = $formField->getAttribute('max');
+    $inputMin = $htmlElementField->getAttribute('min');
+    $inputMax = $htmlElementField->getAttribute('max');
 
     if (strpos($inputRule, 'auto') !== false) {
 
@@ -444,10 +458,10 @@ class Validator
 
     if (strpos($inputRule, 'strict') !== false) {
 
-      if ($formField->tag === 'select') {
+      if ($htmlElementField->tag === 'select') {
 
         $selectableValues = [];
-        foreach ($formField->getElementsByTagName('option') as $option) {
+        foreach ($htmlElementField->getElementsByTagName('option') as $option) {
           $selectableValues[] = $option->getNode()->nodeValue;
         }
         $inputRule .= '|in(' . serialize($selectableValues) . ')';
@@ -459,20 +473,20 @@ class Validator
               $inputType == 'radio'
           )
           &&
-          $form) {
+          $htmlElement) {
 
         $selectableValues = [];
 
         try {
-          $formFieldNames = $form->find('[name=' . $formField->name . ']');
+          $htmlElementFieldNames = $htmlElement->find('[name=' . $htmlElementField->name . ']');
         } catch (SyntaxErrorException $syntaxErrorException) {
-          $formFieldNames = null;
+          $htmlElementFieldNames = null;
           // TODO@me -> can the symfony CssSelectorConverter use array-name-attributes?
         }
 
-        if ($formFieldNames) {
-          foreach ($formFieldNames as $formFieldName) {
-            $selectableValues[] = $formFieldName->value;
+        if ($htmlElementFieldNames) {
+          foreach ($htmlElementFieldNames as $htmlElementFieldName) {
+            $selectableValues[] = $htmlElementFieldName->value;
           }
         }
 
@@ -481,15 +495,15 @@ class Validator
       }
     }
 
-    if ($formField->hasAttribute('required')) {
-      $this->required_rules[$formHelperId][$inputName] = $inputRule;
+    if ($htmlElementField->hasAttribute('required')) {
+      $this->required_rules[$htmlElementHelperId][$inputName] = $inputRule;
     }
 
-    $this->rules[$formHelperId][$inputName] = $inputRule;
+    $this->rules[$htmlElementHelperId][$inputName] = $inputRule;
   }
 
   /**
-   * @param string $phpNamespace <p>e.g.: "voku\\HtmlFormValidator\\Rules"</p>
+   * @param string $phpNamespace <p>e.g.: "voku\\HtmlhtmlElementValidator\\Rules"</p>
    *
    * @return $this
    */
@@ -501,7 +515,7 @@ class Validator
   }
 
   /**
-   * @param string $phpNamespace <p>e.g.: "voku\\HtmlFormValidator\\Rules"</p>
+   * @param string $phpNamespace <p>e.g.: "voku\\HtmlhtmlElementValidator\\Rules"</p>
    *
    * @return $this
    */
@@ -533,16 +547,16 @@ class Validator
   }
 
   /**
-   * Loop the form data through form rules.
+   * Loop the htmlElement data through htmlElement rules.
    *
-   * @param array $formValues
+   * @param array $htmlElementValues
    * @param bool  $useNoValidationRuleException
    *
    * @throws UnknownValidationRule
    *
    * @return ValidatorResult
    */
-  public function validate(array $formValues, $useNoValidationRuleException = false): ValidatorResult
+  public function validate(array $htmlElementValues, $useNoValidationRuleException = false): ValidatorResult
   {
     if (
         $useNoValidationRuleException === true
@@ -555,19 +569,19 @@ class Validator
     }
 
     // init
-    $validatorResult = new ValidatorResult($this->formDocument);
+    $validatorResult = new ValidatorResult($this->htmlElementDocument);
 
-    foreach ($this->rules as $formHelperId => $formFields) {
-      foreach ($formFields as $field => $fieldRuleOuter) {
+    foreach ($this->rules as $htmlElementHelperId => $htmlElementFields) {
+      foreach ($htmlElementFields as $field => $fieldRuleOuter) {
 
-        $currentFieldValue = $this->getCurrentFieldValue($formValues, $field);
+        $currentFieldValue = $this->getCurrentFieldValue($htmlElementValues, $field);
 
         //
         // use the filter
         //
 
-        if (isset($this->filters[$formHelperId][$field])) {
-          $filtersOuter = $this->filters[$formHelperId][$field];
+        if (isset($this->filters[$htmlElementHelperId][$field])) {
+          $filtersOuter = $this->filters[$htmlElementHelperId][$field];
           $fieldFilters = preg_split("/\|+(?![^\(]*\))/", $filtersOuter);
 
           foreach ($fieldFilters as $fieldFilter) {
@@ -593,7 +607,7 @@ class Validator
         if (
             $currentFieldValue === null
             &&
-            !isset($this->required_rules[$formHelperId][$field])
+            !isset($this->required_rules[$htmlElementHelperId][$field])
         ) {
           continue;
         }

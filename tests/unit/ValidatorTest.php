@@ -14,19 +14,31 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         <ul>
           <li> 
             <label>
-              <input type="checkbox" name="zutat" data-validator="strict" value="salami">
+              <input  type="checkbox" 
+                      name="zutat" 
+                      data-validator="strict" 
+                      value="salami"
+              >
               Salami
             </label>
           </li>
           <li> 
             <label>
-               <input type="checkbox" name="zutat" data-validator="strict" value="schinken">
+               <input   type="checkbox" 
+                        name="zutat" 
+                        data-validator="strict" 
+                        value="schinken"
+               >
                Schinken
             </label>
           </li>
           <li>  
             <label>
-              <input type="checkbox" name="zutat" data-validator="strict" value="sardellen">
+              <input  type="checkbox" 
+                      name="zutat" 
+                      data-validator="strict" 
+                      value="sardellen"
+              >
               Sardellen
             </label>
           </li>
@@ -42,12 +54,30 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     <form id="billing">
       <p>Geben Sie Ihre Zahlungsweise an:</p>
       <fieldset>
-        <input type="radio" id="mc" data-validator="strict" name="Zahlmethode" value="Mastercard">
+        <input  type="radio" 
+                id="mc" 
+                data-validator="strict" 
+                name="Zahlmethode" 
+                value="Mastercard"
+        >
         <label for="mc"> Mastercard</label> 
-        <input type="radio" id="vi" data-validator="strict" name="Zahlmethode" value="Visa">
+        
+        <input  type="radio" 
+                id="vi" 
+                data-validator="strict" 
+                name="Zahlmethode" 
+                value="Visa"
+        >
         <label for="vi"> Visa</label>
-        <input type="radio" id="ae" data-validator="strict" name="Zahlmethode" value="AmericanExpress">
+        
+        <input  type="radio" 
+                id="ae" 
+                data-validator="strict" 
+                name="Zahlmethode" 
+                value="AmericanExpress"
+        >
         <label for="ae"> American Express</label> 
+        
       </fieldset>
     </form>
     ';
@@ -221,6 +251,21 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
     ';
   }
 
+  protected function getBasicValidFromWithoutId()
+  {
+    return '
+    <form>
+      <label for="choose">Would you prefer a banana or a cherry?</label>
+      <input  id="choose" 
+              name="i_like" 
+              required 
+              data-validator="auto"
+              pattern="banana|cherry">
+      <button>Submit</button>
+    </form>
+    ';
+  }
+
   protected function getFilterValidForm()
   {
     return '
@@ -287,6 +332,24 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         <input type="submit"/>
     </form>
     ';
+  }
+
+  protected function getInputsWithoutFormTag()
+  {
+    return '
+    <div>
+      <foo class="input_data input_data--1 input_data--2">
+        <textarea name="your_text_input"
+                  required
+                  data-validator="minLength(1)|maxLength(20)"  
+        ></textarea>
+        
+        <input  name="your_age"
+                min="18"
+                data-validator="auto"
+        >
+      </foo>
+    </div>';
   }
 
   protected function getTwoFormsInputValidAndInvalidForm()
@@ -660,6 +723,83 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
   /**
    * @test
    */
+  public function it_can_use_html5_min_also_without_form_tag()
+  {
+    $formHTML = $this->getInputsWithoutFormTag();
+
+    $formValidator = new Validator($formHTML, 'foo.input_data');
+    $formValidator->addCustomRule('foobar', \Respect\Validation\Rules\CustomRule::class);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'html-element-validator-tmp-foo.input_data' => [
+                'your_text_input' => 'minLength(1)|maxLength(20)',
+                'your_age'        => 'auto|min(s:2:"18";)',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(2, $rules['html-element-validator-tmp-foo.input_data']);
+
+    // get all required fields
+
+    self::assertSame(
+        [
+            'html-element-validator-tmp-foo.input_data' => [
+                'your_text_input' => 'minLength(1)|maxLength(20)',
+            ],
+        ],
+        $formValidator->getRequiredRules()
+    );
+
+    // --- invalid -> missing required field
+
+    $formData = [];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertNotSame([], $formValidatorResult->getErrorMessages());
+    self::assertSame(
+        [
+            'your_text_input' => [
+                0 => 'null is to short.',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+
+    // --- invalid
+
+    $formData = [
+        'your_text_input' => 'foooo',
+        'your_age'        => '16',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'your_age' => [
+                0 => '"16" must be greater than or equal to "18"',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+
+    // valid
+
+
+    $formData = [
+        'your_text_input' => 'foooo',
+        'your_age'        => '18',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
   public function it_can_use_html5_pattern()
   {
     $formHTML = $this->getBasicValidFromWithPattern();
@@ -677,6 +817,52 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
         $rules
     );
     self::assertCount(1, $rules['food']);
+
+    // --- valid
+
+    $formData = [
+        'i_like' => 'banana',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame([], $formValidatorResult->getErrorMessages());
+
+    // --- invalid
+
+    $formData = [
+        'email' => 'foo@isanemail.com',
+        'lall'  => 'noop',
+    ];
+    $formValidatorResult = $formValidator->validate($formData);
+    self::assertSame(
+        [
+            'i_like' => [
+                0 => 'null must validate against "/banana|cherry/"',
+            ],
+        ],
+        $formValidatorResult->getErrorMessages()
+    );
+  }
+
+  /**
+   * @test
+   */
+  public function it_can_use_html5_pattern_without_form_id()
+  {
+    $formHTML = $this->getBasicValidFromWithoutId();
+
+    $formValidator = new Validator($formHTML);
+    $formValidator->addCustomRule('foobar', \Respect\Validation\Rules\CustomRule::class);
+
+    $rules = $formValidator->getAllRules();
+    self::assertSame(
+        [
+            'html-element-validator-tmp-/html/body/form/' => [
+                'i_like' => 'auto|regex(/banana|cherry/)',
+            ],
+        ],
+        $rules
+    );
+    self::assertCount(1, $rules['html-element-validator-tmp-/html/body/form/']);
 
     // --- valid
 

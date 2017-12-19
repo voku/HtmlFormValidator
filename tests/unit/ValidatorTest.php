@@ -1316,4 +1316,24 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     (new Validator($formHTML))->validate($formData, true);
   }
+
+  /**
+   * @test
+   */
+  public function short_test_for_a_tweet()
+  {
+    $h = '<input 
+          type="email"
+          name="user[email]"
+          data-validator="auto"
+          data-filter="trim"
+          required
+    >';
+
+    $v = (new Validator($h, 'input'))->validate(['user' => ['email' => 'foo@nomail']]);
+    self::assertFalse($v->isSuccess());
+
+    $v = (new Validator($h, 'input'))->validate(['user' => ['email' => 'foo@ismail.com']]);
+    self::assertTrue($v->isSuccess());
+  }
 }

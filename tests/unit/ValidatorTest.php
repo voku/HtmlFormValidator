@@ -1330,10 +1330,16 @@ class ValidatorTest extends \PHPUnit\Framework\TestCase
           required
     >';
 
+    // invalid
     $v = (new Validator($h, 'input'))->validate(['user' => ['email' => 'foo@nomail']]);
     self::assertFalse($v->isSuccess());
 
+    // valid
     $v = (new Validator($h, 'input'))->validate(['user' => ['email' => 'foo@ismail.com']]);
+    self::assertTrue($v->isSuccess());
+
+    // valid but only with trim (data-filter)
+    $v = (new Validator($h, 'input'))->validate(['user' => ['email' => '   foo@ismail.com']]);
     self::assertTrue($v->isSuccess());
   }
 }

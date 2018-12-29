@@ -11,183 +11,297 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
     protected function getBasicCheckboxFormStrict()
     {
         return '
-    <form id="food"> 
-      <h3>Kreuzen Sie die gewünschten Zutaten an:</h3> 
-      <fieldset>
-        <ul>
-          <li> 
-            <label>
-              <input  type="checkbox" 
-                      name="zutat" 
-                      data-validator="strict" 
-                      value="salami"
-              >
-              Salami
-            </label>
-          </li>
-          <li> 
-            <label>
-               <input   type="checkbox" 
-                        name="zutat" 
-                        data-validator="strict" 
-                        value="schinken"
-               >
-               Schinken
-            </label>
-          </li>
-          <li>  
-            <label>
-              <input  type="checkbox" 
-                      name="zutat" 
-                      data-validator="strict" 
-                      value="sardellen"
-              >
-              Sardellen
-            </label>
-          </li>
-        </ul> 
-      </fieldset> 
-    </form>
-    ';
+        <form id="food"> 
+          <h3>Kreuzen Sie die gewünschten Zutaten an:</h3> 
+          <fieldset>
+            <ul>
+              <li> 
+                <label>
+                  <input  type="checkbox" 
+                          name="zutat" 
+                          data-validator="strict" 
+                          value="salami"
+                  >
+                  Salami
+                </label>
+              </li>
+              <li> 
+                <label>
+                   <input   type="checkbox" 
+                            name="zutat" 
+                            data-validator="strict" 
+                            value="schinken"
+                   >
+                   Schinken
+                </label>
+              </li>
+              <li>  
+                <label>
+                  <input  type="checkbox" 
+                          name="zutat" 
+                          data-validator="strict" 
+                          value="sardellen"
+                  >
+                  Sardellen
+                </label>
+              </li>
+            </ul> 
+          </fieldset> 
+        </form>
+        ';
     }
 
     protected function getBasicRadioFormStrict()
     {
         return '
-    <form id="billing">
-      <p>Geben Sie Ihre Zahlungsweise an:</p>
-      <fieldset>
-        <input  type="radio" 
-                id="mc" 
-                data-validator="strict" 
-                name="Zahlmethode" 
-                value="Mastercard"
-        >
-        <label for="mc"> Mastercard</label> 
-        
-        <input  type="radio" 
-                id="vi" 
-                data-validator="strict" 
-                name="Zahlmethode" 
-                value="Visa"
-        >
-        <label for="vi"> Visa</label>
-        
-        <input  type="radio" 
-                id="ae" 
-                data-validator="strict" 
-                name="Zahlmethode" 
-                value="AmericanExpress"
-        >
-        <label for="ae"> American Express</label> 
-        
-      </fieldset>
-    </form>
-    ';
+        <form id="billing">
+          <p>Geben Sie Ihre Zahlungsweise an:</p>
+          <fieldset>
+            <input  type="radio" 
+                    id="mc" 
+                    data-validator="strict" 
+                    name="Zahlmethode" 
+                    value="Mastercard"
+            >
+            <label for="mc"> Mastercard</label> 
+            
+            <input  type="radio" 
+                    id="vi" 
+                    data-validator="strict" 
+                    name="Zahlmethode" 
+                    value="Visa"
+            >
+            <label for="vi"> Visa</label>
+            
+            <input  type="radio" 
+                    id="ae" 
+                    data-validator="strict" 
+                    name="Zahlmethode" 
+                    value="AmericanExpress"
+            >
+            <label for="ae"> American Express</label> 
+            
+          </fieldset>
+        </form>
+        ';
     }
 
     protected function getBasicSelectFormStrict()
     {
         return '
-    <form action="%s" id="music">
-      <label>Künstler(in):
-        <select name="top5"
-                required
-                data-validator="strict|maxLength(10)|minLength(1)"   
-        >
-          <option>Heino</option>
-          <option>Michael Jackson</option>
-          <option>Tom Waits</option>
-          <option>Nina Hagen</option>
-          <option>Marianne Rosenberg</option>
-        </select>
-      </label>
-    </form>
-    ';
+        <form action="%s" id="music">
+          <label>Künstler(in):
+            <select name="top5"
+                    required
+                    data-validator="strict|maxLength(10)|minLength(1)"   
+            >
+              <option>Heino</option>
+              <option>Michael Jackson</option>
+              <option>Tom Waits</option>
+              <option>Nina Hagen</option>
+              <option>Marianne Rosenberg</option>
+            </select>
+          </label>
+        </form>
+        ';
     }
 
     protected function getBasicValidForm()
     {
         return '
-    <form action="%s" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value=""
-            data-validator="email|maxLength(20)"
-            required="required"
-        />
-        <input type="submit"/>
-    </form>
-    ';
+        <form action="%s" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value=""
+                data-validator="email|maxLength(20)"
+                required="required"
+            />
+            <input type="submit"/>
+        </form>
+        ';
     }
 
     protected function getBasicValidFormCustom()
     {
         return '
-    <form action="%s" id="foo" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value=""
-            data-validator="email"
-            required="required"
-        />
-        <input
-            type="text"
-            id="lall"
-            name="lall"
-            value=""
-            data-validator="foobar"
-        />
-        <button type="submit">submit</button>
-    </form>
-    ';
+        <form action="%s" id="foo" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value=""
+                data-validator="email"
+                required="required"
+            />
+            <input
+                type="text"
+                id="lall"
+                name="lall"
+                value=""
+                data-validator="foobar"
+            />
+            <button type="submit">submit</button>
+        </form>
+        ';
     }
 
     protected function getBasicValidFormCustomFilter()
     {
         return '
-    <form action="%s" id="foo" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value=""
-            data-validator="email"
-            required="required"
-        />
-        <input
-            type="text"
-            id="lall"
-            name="lall"
-            value=""
-            data-validator="notEmpty"
-            data-filter="append_lall"
-        />
-        <button type="submit">submit</button>
-    </form>
-    ';
+        <form action="%s" id="foo" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value=""
+                data-validator="email"
+                required="required"
+            />
+            <input
+                type="text"
+                id="lall"
+                name="lall"
+                value=""
+                data-validator="notEmpty"
+                data-filter="append_lall"
+            />
+            <button type="submit">submit</button>
+        </form>
+        ';
     }
 
     protected function getBasicValidFormWithArrayData()
     {
         return '
-    <form action="%s" id="user-register" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="user[1][email]"
-            value=""
-            data-validator="auto|maxLength(200)"
-            required="required"
-        />
+        <form action="%s" id="user-register" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="user[1][email]"
+                value=""
+                data-validator="auto|maxLength(200)"
+                required="required"
+            />
+            
+            <div>
+                <label for="username">Name:</label>
+                <input
+                    type="text"
+                    form="register"
+                    id="username"
+                    name="user[2][name]"
+                    value=""
+                    data-validator="notEmpty"
+                    data-filter="strip_tags|trim|escape"
+                    required="required"
+                />
+            </div>
+            
+            <input type="submit"/>
+        </form>
+        ';
+    }
+
+    protected function getBasicValidFormWithSimpleArrayData()
+    {
+        return '
+        <form action="%s" id="register" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="user[email]"
+                value=""
+                data-validator="email"
+                data-filter="trim"
+                required="required"
+            />
+            
+            <label for="username">Name:</label>
+            <input
+                type="text"
+                id="username"
+                name="user[name]"
+                value=""
+                data-validator="notEmpty|stringType"
+                data-filter="strip_tags|trim|escape"
+                required="required"
+            />
+            
+            <input type="submit"/>
+        </form>
+        ';
+    }
+
+    protected function getBasicValidFromWithPattern()
+    {
+        return '
+        <form id="food">
+          <label for="choose">Would you prefer a banana or a cherry?</label>
+          <input  id="choose" 
+                  name="i_like" 
+                  required 
+                  data-validator="auto"
+                  pattern="banana|cherry">
+          <button>Submit</button>
+        </form>
+        ';
+    }
+
+    protected function getBasicValidFromWithoutId()
+    {
+        return '
+        <form>
+          <label for="choose">Would you prefer a banana or a cherry?</label>
+          <input  id="choose" 
+                  name="i_like" 
+                  required 
+                  data-validator="auto"
+                  pattern="banana|cherry">
+          <button>Submit</button>
+        </form>
+        ';
+    }
+
+    protected function getFilterValidForm()
+    {
+        return '
+        <form action="%s" id="lall-form" method="post">
+            <label for="lall">Lall:</label>
+            <input
+                type="text"
+                id="lall"
+                name="lall"
+                value=""
+                data-filter
+            />
+            <input type="submit"/>
+        </form>
+        ';
+    }
+
+    protected function getFormWithAdditionalInputValidForm()
+    {
+        return '
+        <form action="%s" id="register" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value=""
+                data-validator="email|notEmpty"
+                data-filter="trim"
+                required="required"
+            />
+            <input type="submit"/>
+        </form>
         
         <div>
             <label for="username">Name:</label>
@@ -195,194 +309,80 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
                 type="text"
                 form="register"
                 id="username"
-                name="user[2][name]"
+                name="username"
                 value=""
                 data-validator="notEmpty"
-                data-filter="strip_tags|trim|escape"
+                data-filter="strip_tags(<p>)|trim|escape"
                 required="required"
             />
         </div>
-        
-        <input type="submit"/>
-    </form>
-    ';
-    }
-
-    protected function getBasicValidFormWithSimpleArrayData()
-    {
-        return '
-    <form action="%s" id="register" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="user[email]"
-            value=""
-            data-validator="email"
-            data-filter="trim"
-            required="required"
-        />
-        
-        <label for="username">Name:</label>
-        <input
-            type="text"
-            id="username"
-            name="user[name]"
-            value=""
-            data-validator="notEmpty|stringType"
-            data-filter="strip_tags|trim|escape"
-            required="required"
-        />
-        
-        <input type="submit"/>
-    </form>
-    ';
-    }
-
-    protected function getBasicValidFromWithPattern()
-    {
-        return '
-    <form id="food">
-      <label for="choose">Would you prefer a banana or a cherry?</label>
-      <input  id="choose" 
-              name="i_like" 
-              required 
-              data-validator="auto"
-              pattern="banana|cherry">
-      <button>Submit</button>
-    </form>
-    ';
-    }
-
-    protected function getBasicValidFromWithoutId()
-    {
-        return '
-    <form>
-      <label for="choose">Would you prefer a banana or a cherry?</label>
-      <input  id="choose" 
-              name="i_like" 
-              required 
-              data-validator="auto"
-              pattern="banana|cherry">
-      <button>Submit</button>
-    </form>
-    ';
-    }
-
-    protected function getFilterValidForm()
-    {
-        return '
-    <form action="%s" id="lall-form" method="post">
-        <label for="lall">Lall:</label>
-        <input
-            type="text"
-            id="lall"
-            name="lall"
-            value=""
-            data-filter
-        />
-        <input type="submit"/>
-    </form>
-    ';
-    }
-
-    protected function getFormWithAdditionalInputValidForm()
-    {
-        return '
-    <form action="%s" id="register" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value=""
-            data-validator="email|notEmpty"
-            data-filter="trim"
-            required="required"
-        />
-        <input type="submit"/>
-    </form>
-    
-    <div>
-        <label for="username">Name:</label>
-        <input
-            type="text"
-            form="register"
-            id="username"
-            name="username"
-            value=""
-            data-validator="notEmpty"
-            data-filter="strip_tags(<p>)|trim|escape"
-            required="required"
-        />
-    </div>
-    ';
+        ';
     }
 
     protected function getFormWithUnknownRule()
     {
         return '
-    <form action="%s" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value=""
-            data-validator="unknown"
-            required="required"
-        />
-        <input type="submit"/>
-    </form>
-    ';
+        <form action="%s" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value=""
+                data-validator="unknown"
+                required="required"
+            />
+            <input type="submit"/>
+        </form>
+        ';
     }
 
     protected function getInputsWithoutFormTag()
     {
         return '
-    <div>
-      <foo class="input_data input_data--1 input_data--2">
-        <textarea name="your_text_input"
-                  required
-                  data-validator="minLength(1)|maxLength(20)"  
-        ></textarea>
-        
-        <input  name="your_age"
-                min="18"
-                data-validator="auto"
-        >
-      </foo>
-    </div>';
+        <div>
+          <foo class="input_data input_data--1 input_data--2">
+            <textarea name="your_text_input"
+                      required
+                      data-validator="minLength(1)|maxLength(20)"  
+            ></textarea>
+            
+            <input  name="your_age"
+                    min="18"
+                    data-validator="auto"
+            >
+          </foo>
+        </div>';
     }
 
     protected function getTwoFormsInputValidAndInvalidForm()
     {
         return '
-    <form action="%s" id="foo" method="post">
-        <label for="email">Test:</label>
-        <input
-            type="text"
-            name="foo"
-            value=""
-            data-validator="bar"
-            required="required"
-        />
-        <input type="submit"/>
-    </form>
-    
-    <form action="%s" id="register" method="post">
-        <label for="email">Email:</label>
-        <input
-            type="email"
-            id="email"
-            name="email"
-            value=""
-            data-validator="auto"
-            required="required"
-        />
-        <input type="submit"/>
-    </form>
-    ';
+        <form action="%s" id="foo" method="post">
+            <label for="email">Test:</label>
+            <input
+                type="text"
+                name="foo"
+                value=""
+                data-validator="bar"
+                required="required"
+            />
+            <input type="submit"/>
+        </form>
+        
+        <form action="%s" id="register" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="email"
+                value=""
+                data-validator="auto"
+                required="required"
+            />
+            <input type="submit"/>
+        </form>
+        ';
     }
 
     public function testItCanUseArrayDataForValidations()
@@ -393,14 +393,14 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'user-register' => [
-                'user[1][email]' => 'auto|maxLength(200)|Respect\Validation\Rules\Email',
-                'user[2][name]'  => 'notEmpty',
+            [
+                'user-register' => [
+                    'user[1][email]' => 'auto|maxLength(200)|Respect\Validation\Rules\Email',
+                    'user[2][name]'  => 'notEmpty',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['user-register']);
 
         // --- valid
@@ -424,13 +424,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'user[1][email]' => [
-                0 => '"foo@isanemail" must be valid email',
+            [
+                'user[1][email]' => [
+                    0 => '"foo@isanemail" must be valid email',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseAutoFiler()
@@ -441,21 +441,21 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [],
-        $rules
-    );
+            [],
+            $rules
+        );
 
         // --- filter
 
         $filter = $formValidator->getAllFilters();
         static::assertSame(
-        [
-            'lall-form' => [
-                'lall' => 'htmlentities',
+            [
+                'lall-form' => [
+                    'lall' => 'htmlentities',
+                ],
             ],
-        ],
-        $filter
-    );
+            $filter
+        );
         static::assertCount(1, $filter['lall-form']);
 
         // --- valid
@@ -475,21 +475,21 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $formValidator = new Validator($formHTML);
         $formValidator->setTranslator(
-        function ($text) {
-            return 'Error: ' . $text;
-        }
-    );
+            function ($text) {
+                return 'Error: ' . $text;
+            }
+        );
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'register' => [
-                'user[email]' => 'email',
-                'user[name]'  => 'notEmpty|stringType',
+            [
+                'register' => [
+                    'user[email]' => 'email',
+                    'user[name]'  => 'notEmpty|stringType',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['register']);
 
         // --- valid
@@ -513,13 +513,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'user[email]' => [
-                0 => 'Error: "foo@isanemail" must be valid email',
+            [
+                'user[email]' => [
+                    0 => 'Error: "foo@isanemail" must be valid email',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseCustomFilter()
@@ -528,22 +528,22 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $formValidator = new Validator($formHTML);
         $formValidator->addCustomFilter(
-        'append_lall',
-        function ($input) {
-            return $input . 'lall';
-        }
-    );
+            'append_lall',
+            function ($input) {
+                return $input . 'lall';
+            }
+        );
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'foo' => [
-                'email' => 'email',
-                'lall'  => 'notEmpty',
+            [
+                'foo' => [
+                    'email' => 'email',
+                    'lall'  => 'notEmpty',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['foo']);
 
         // --- valid
@@ -562,16 +562,16 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'email' => 'foo@isanemail.com',
-            'lall'  => 'lall',
-        ],
-        $formValidatorResult->getValues()
-    );
+            [
+                'email' => 'foo@isanemail.com',
+                'lall'  => 'lall',
+            ],
+            $formValidatorResult->getValues()
+        );
         static::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
+            [],
+            $formValidatorResult->getErrorMessages()
+        );
 
         // --- valid
 
@@ -592,14 +592,14 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'foo' => [
-                'email' => 'email',
-                'lall'  => 'foobar',
+            [
+                'foo' => [
+                    'email' => 'email',
+                    'lall'  => 'foobar',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['foo']);
 
         // --- valid
@@ -618,13 +618,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'lall' => [
-                0 => 'Invalid input... \'foobar\' is only allowed here... ',
+            [
+                'lall' => [
+                    0 => 'Invalid input... \'foobar\' is only allowed here... ',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
 
         // --- valid
 
@@ -642,23 +642,23 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $formValidator = new Validator($formHTML);
         $formValidator->addCustomRule(
-        'foobar',
-        v::allOf(
-            v::intVal(),
-            v::positive()
-        )
-    );
+            'foobar',
+            v::allOf(
+                v::intVal(),
+                v::positive()
+            )
+        );
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'foo' => [
-                'email' => 'email',
-                'lall'  => 'foobar',
+            [
+                'foo' => [
+                    'email' => 'email',
+                    'lall'  => 'foobar',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['foo']);
 
         // --- valid
@@ -677,15 +677,15 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'lall' => [
-                0 => '- All of the required rules must pass for "noop"
+            [
+                'lall' => [
+                    0 => '- All of the required rules must pass for "noop"
   - "noop" must be an integer number
   - "noop" must be positive',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
 
         // --- invalid
 
@@ -695,15 +695,15 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'lall' => [
-                0 => '- All of the required rules must pass for "foobar"
+            [
+                'lall' => [
+                    0 => '- All of the required rules must pass for "foobar"
   - "foobar" must be an integer number
   - "foobar" must be positive',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseHtml5MinAlsoWithoutFormTag()
@@ -715,26 +715,26 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'html-element-validator-tmp-foo.input_data' => [
-                'your_text_input' => 'minLength(1)|maxLength(20)',
-                'your_age'        => 'auto|min(s:2:"18";)',
+            [
+                'html-element-validator-tmp-foo.input_data' => [
+                    'your_text_input' => 'minLength(1)|maxLength(20)',
+                    'your_age'        => 'auto|min(s:2:"18";)',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['html-element-validator-tmp-foo.input_data']);
 
         // get all required fields
 
         static::assertSame(
-        [
-            'html-element-validator-tmp-foo.input_data' => [
-                'your_text_input' => 'minLength(1)|maxLength(20)',
+            [
+                'html-element-validator-tmp-foo.input_data' => [
+                    'your_text_input' => 'minLength(1)|maxLength(20)',
+                ],
             ],
-        ],
-        $formValidator->getRequiredRules()
-    );
+            $formValidator->getRequiredRules()
+        );
 
         // --- invalid -> missing required field
 
@@ -742,13 +742,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($formData);
         static::assertNotSame([], $formValidatorResult->getErrorMessages());
         static::assertSame(
-        [
-            'your_text_input' => [
-                0 => 'null is to short.',
+            [
+                'your_text_input' => [
+                    0 => 'null is to short.',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
 
         // --- invalid
 
@@ -758,13 +758,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'your_age' => [
-                0 => '"16" must be greater than or equal to "18"',
+            [
+                'your_age' => [
+                    0 => '"16" must be greater than or equal to "18"',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
 
         // valid
 
@@ -774,9 +774,9 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [],
-        $formValidatorResult->getErrorMessages()
-    );
+            [],
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseHtml5Pattern()
@@ -788,13 +788,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'food' => [
-                'i_like' => 'auto|regex(/banana|cherry/)',
+            [
+                'food' => [
+                    'i_like' => 'auto|regex(/banana|cherry/)',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(1, $rules['food']);
 
         // --- valid
@@ -813,13 +813,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'i_like' => [
-                0 => 'null must validate against "/banana|cherry/"',
+            [
+                'i_like' => [
+                    0 => 'null must validate against "/banana|cherry/"',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseHtml5PatternWithoutFormId()
@@ -831,13 +831,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'html-element-validator-tmp-/html/body/form/' => [
-                'i_like' => 'auto|regex(/banana|cherry/)',
+            [
+                'html-element-validator-tmp-/html/body/form/' => [
+                    'i_like' => 'auto|regex(/banana|cherry/)',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(1, $rules['html-element-validator-tmp-/html/body/form/']);
 
         // --- valid
@@ -856,13 +856,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'i_like' => [
-                0 => 'null must validate against "/banana|cherry/"',
+            [
+                'i_like' => [
+                    0 => 'null must validate against "/banana|cherry/"',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseHtmlCheckboxStrict()
@@ -873,13 +873,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'food' => [
-                'zutat' => 'strict|in(a:3:{i:0;s:6:"salami";i:1;s:8:"schinken";i:2;s:9:"sardellen";})',
+            [
+                'food' => [
+                    'zutat' => 'strict|in(a:3:{i:0;s:6:"salami";i:1;s:8:"schinken";i:2;s:9:"sardellen";})',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(1, $rules['food']);
 
         // --- valid
@@ -897,13 +897,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'zutat' => [
-                0 => '"fooooo" must be in { "salami", "schinken", "sardellen" }',
+            [
+                'zutat' => [
+                    0 => '"fooooo" must be in { "salami", "schinken", "sardellen" }',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseHtmlRadioStrict()
@@ -914,13 +914,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'billing' => [
-                'Zahlmethode' => 'strict|in(a:3:{i:0;s:10:"Mastercard";i:1;s:4:"Visa";i:2;s:15:"AmericanExpress";})',
+            [
+                'billing' => [
+                    'Zahlmethode' => 'strict|in(a:3:{i:0;s:10:"Mastercard";i:1;s:4:"Visa";i:2;s:15:"AmericanExpress";})',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(1, $rules['billing']);
 
         // --- valid
@@ -938,13 +938,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'Zahlmethode' => [
-                0 => '"fooooo" must be in { "Mastercard", "Visa", "AmericanExpress" }',
+            [
+                'Zahlmethode' => [
+                    0 => '"fooooo" must be in { "Mastercard", "Visa", "AmericanExpress" }',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseHtmlSelectStrict()
@@ -955,13 +955,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'music' => [
-                'top5' => 'strict|maxLength(10)|minLength(1)|in(a:5:{i:0;s:5:"Heino";i:1;s:15:"Michael Jackson";i:2;s:9:"Tom Waits";i:3;s:10:"Nina Hagen";i:4;s:18:"Marianne Rosenberg";})',
+            [
+                'music' => [
+                    'top5' => 'strict|maxLength(10)|minLength(1)|in(a:5:{i:0;s:5:"Heino";i:1;s:15:"Michael Jackson";i:2;s:9:"Tom Waits";i:3;s:10:"Nina Hagen";i:4;s:18:"Marianne Rosenberg";})',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(1, $rules['music']);
 
         // --- valid
@@ -979,13 +979,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'top5' => [
-                0 => '"Michael Jackson" is to long.',
+            [
+                'top5' => [
+                    0 => '"Michael Jackson" is to long.',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
 
         // --- invalid
 
@@ -994,13 +994,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'top5' => [
-                0 => '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
+            [
+                'top5' => [
+                    0 => '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItCanUseSimpleArrayDataForValidations()
@@ -1011,14 +1011,14 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $rules = $formValidator->getAllRules();
         static::assertSame(
-        [
-            'register' => [
-                'user[email]' => 'email',
-                'user[name]'  => 'notEmpty|stringType',
+            [
+                'register' => [
+                    'user[email]' => 'email',
+                    'user[name]'  => 'notEmpty|stringType',
+                ],
             ],
-        ],
-        $rules
-    );
+            $rules
+        );
         static::assertCount(2, $rules['register']);
 
         // --- valid
@@ -1042,13 +1042,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         ];
         $formValidatorResult = $formValidator->validate($formData);
         static::assertSame(
-        [
-            'user[email]' => [
-                0 => '"foo@isanemail" must be valid email',
+            [
+                'user[email]' => [
+                    0 => '"foo@isanemail" must be valid email',
+                ],
             ],
-        ],
-        $formValidatorResult->getErrorMessages()
-    );
+            $formValidatorResult->getErrorMessages()
+        );
     }
 
     public function testItLooksForValidationRulesInFormInputDataAttributes()
@@ -1077,13 +1077,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         static::assertFalse($formValidatorResult->isSuccess());
         static::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
-        $formValidator->getHtml()
-    );
+            '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
+            $formValidator->getHtml()
+        );
         static::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
-        $formValidatorResult->getHtml()
-    );
+            '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
+            $formValidatorResult->getHtml()
+        );
         static::assertSame($expectedValidatorResult, $formValidatorResult->getErrorMessages());
     }
 
@@ -1104,13 +1104,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         static::assertFalse($formValidatorResult->isSuccess());
         static::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
-        $formValidator->getHtml()
-    );
+            '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
+            $formValidator->getHtml()
+        );
         static::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
-        $formValidatorResult->getHtml()
-    );
+            '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
+            $formValidatorResult->getHtml()
+        );
         static::assertSame($expectedValidatorResult, $formValidatorResult->getErrorMessages());
     }
 
@@ -1121,14 +1121,14 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidator = new Validator($formHTML);
 
         static::assertContains(
-        '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
-        $formValidator->getHtml()
-    );
+            '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
+            $formValidator->getHtml()
+        );
 
         static::assertContains(
-        '<input type="submit">',
-        $formValidator->getHtml()
-    );
+            '<input type="submit">',
+            $formValidator->getHtml()
+        );
     }
 
     public function testItReturnsTrueIfFormRulesPass()
@@ -1155,21 +1155,21 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($formData);
 
         static::assertSame(
-        [
-            'email'    => 'foo@example.com',
-            'username' => '&lt;p onclick&equals;&quot;alert&lpar;&apos;hacked&apos;&rpar;&quot;&gt;lall&lt;&sol;p&gt;',
-        ],
-        $formValidatorResult->getValues()
-    );
-        static::assertSame(
-        [
-            'register' => [
-                'email'    => 'email|notEmpty',
-                'username' => 'notEmpty',
+            [
+                'email'    => 'foo@example.com',
+                'username' => '&lt;p onclick&equals;&quot;alert&lpar;&apos;hacked&apos;&rpar;&quot;&gt;lall&lt;&sol;p&gt;',
             ],
-        ],
-        $formValidator->getAllRules()
-    );
+            $formValidatorResult->getValues()
+        );
+        static::assertSame(
+            [
+                'register' => [
+                    'email'    => 'email|notEmpty',
+                    'username' => 'notEmpty',
+                ],
+            ],
+            $formValidator->getAllRules()
+        );
         static::assertTrue($formValidatorResult->isSuccess());
     }
 
@@ -1196,13 +1196,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($formData);
 
         static::assertSame(
-        [
-            'register' => [
-                'email' => 'auto|Respect\Validation\Rules\Email',
+            [
+                'register' => [
+                    'email' => 'auto|Respect\Validation\Rules\Email',
+                ],
             ],
-        ],
-        $formValidator->getAllRules()
-    );
+            $formValidator->getAllRules()
+        );
         static::assertTrue($formValidatorResult->isSuccess());
     }
 
@@ -1215,13 +1215,13 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($formData);
 
         static::assertSame(
-        [
-            'register' => [
-                'email' => 'auto|Respect\Validation\Rules\Email',
+            [
+                'register' => [
+                    'email' => 'auto|Respect\Validation\Rules\Email',
+                ],
             ],
-        ],
-        $formValidator->getAllRules()
-    );
+            $formValidator->getAllRules()
+        );
         static::assertFalse($formValidatorResult->isSuccess());
     }
 
@@ -1270,5 +1270,59 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         // valid but only with trim (data-filter)
         $v = (new Validator($h, 'input'))->validate(['user' => ['email' => '   foo@ismail.com']]);
         static::assertTrue($v->isSuccess());
+    }
+
+    public function testWithPost()
+    {
+
+        $html = '
+        <form id="register" method="post">
+            <label for="email">Email:</label>
+            <input
+                type="email"
+                id="email"
+                name="user[email]"
+                value=""
+                data-validator="email"
+                data-filter="trim"
+                required="required"
+            >
+            
+            <label for="username">Name:</label>
+            <input
+                type="text"
+                id="username"
+                name="user[name]"
+                value=""
+                data-validator="notEmpty|maxLength(100)"
+                data-filter="strip_tags(<p>)|trim|escape"
+                required="required"
+            >
+            
+            <input type="submit">
+        </form>
+        ';
+
+        $formValidator = new Validator($html);
+
+        // fake some data
+        $_POST = [
+            'user' => [
+                'email' => 'foo@isanemail',
+                'name'  => 'bar',
+            ],
+        ];
+
+        // validate the form
+        $formValidatorResult = $formValidator->validate($_POST);
+
+        // check the result
+        $formValidatorResult->isSuccess(); // false
+
+        // get the error messages
+        self::assertSame(
+            ['user[email]' => ['"foo@isanemail" must be valid email']],
+            $formValidatorResult->getErrorMessages()
+        );
     }
 }

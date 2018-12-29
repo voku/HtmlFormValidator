@@ -10,13 +10,7 @@
 ## Description
 
 HtmlFormValidator is a very easy to use PHP library that will help you 
-to validate your ```<form>``` data. 
-
-1. First you need to generate some html form elements your way ...
-
-2. Then we use DOM Parsing via [voku/simple_html_dom](https://github.com/voku/simple_html_dom), to detect the current validator and filter rules directly from the html.
-
-PS: In the background we use [Respect/Validation](https://github.com/Respect/Validation), so you can use this independent from your framework of choice.
+to validate your ```<form>``` data and you can use this independent from your framework of choice.
 
 
 ## Install via "composer require"
@@ -24,6 +18,15 @@ PS: In the background we use [Respect/Validation](https://github.com/Respect/Val
 ```shell
 composer require voku/html-form-validator
 ```
+
+
+## How does this work?
+
+1. First you need to generate a html form, that's completely your part. You can write it by hand or you can generate with a framework or a library, it doesn't matter.
+
+2. Then we use DOM Parsing via [voku/simple_html_dom](https://github.com/voku/simple_html_dom), to detect the current validator and filter rules directly from the html.
+
+3. And finaly we use [Respect/Validation](https://github.com/Respect/Validation) to validate the form.
 
 
 ## Quick Start

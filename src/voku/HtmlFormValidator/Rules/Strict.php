@@ -9,8 +9,8 @@ use Respect\Validation\Rules\AbstractRule;
  */
 class Strict extends AbstractRule
 {
-  public function validate($input)
-  {
-    return true;
-  }
+    public function validate($input)
+    {
+        return true;
+    }
 }

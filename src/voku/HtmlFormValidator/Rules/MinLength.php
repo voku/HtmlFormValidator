@@ -7,17 +7,17 @@ use Respect\Validation\Rules\Length;
 
 class MinLength extends AbstractRule
 {
-  protected $minLength;
+    protected $minLength;
 
-  public function __construct($minLength = null)
-  {
-    $this->minLength = $minLength;
-  }
+    public function __construct($minLength = null)
+    {
+        $this->minLength = $minLength;
+    }
 
-  public function validate($input)
-  {
-    $internValidate = new Length($this->minLength, null);
+    public function validate($input)
+    {
+        $internValidate = new Length($this->minLength, null);
 
-    return $internValidate->validate($input);
-  }
+        return $internValidate->validate($input);
+    }
 }

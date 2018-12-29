@@ -7,16 +7,17 @@ use Respect\Validation\Rules\Length;
 
 class MaxLength extends AbstractRule
 {
-  protected $maxLength;
+    protected $maxLength;
 
-  public function __construct($maxLength = null) {
-    $this->maxLength = $maxLength;
-  }
+    public function __construct($maxLength = null)
+    {
+        $this->maxLength = $maxLength;
+    }
 
-  public function validate($input)
-  {
-    $internValidate = new Length(null, $this->maxLength);
+    public function validate($input)
+    {
+        $internValidate = new Length(null, $this->maxLength);
 
-    return $internValidate->validate($input);
-  }
+        return $internValidate->validate($input);
+    }
 }

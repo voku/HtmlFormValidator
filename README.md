@@ -36,8 +36,8 @@ use voku\HtmlFormValidator\Validator;
 
 require_once 'composer/autoload.php';
 
-$html = "
-<form action="%s" id="register" method="post">
+$html = '
+<form id="register" method="post">
     <label for="email">Email:</label>
     <input
         type="email"
@@ -47,8 +47,8 @@ $html = "
         data-validator="email"
         data-filter="trim"
         required="required"
-    />
-    
+    >
+
     <label for="username">Name:</label>
     <input
         type="text"
@@ -58,30 +58,30 @@ $html = "
         data-validator="notEmpty|maxLength(100)"
         data-filter="strip_tags(<p>)|trim|escape"
         required="required"
-    />
-    
-    <input type="submit"/>
+    >
+
+    <input type="submit">
 </form>
-";
+';
 
-$formValidator = new Validator($formHTML);
+$formValidator = new Validator($html);
 
-$formData = [
-        'user' => [
-            'email' => 'foo@isanemail',
-            'name'  => 'bar',
-        ],
-    ];
-
+// fake some data
+$_POST = [
+    'user' => [
+        'email' => 'foo@isanemail',
+        'name'  => 'bar',
+    ],
+];
 
 // validate the form
-$formValidatorResult = $formValidator->validate($formData);
+$formValidatorResult = $formValidator->validate($_POST);
 
 // check the result
 $formValidatorResult->isSuccess(); // false
 
 // get the error messages
-$formValidatorResult->getErrorMessages(); // ['user[email]' => ['"foo@isanemail" must be valid email']]    
+$formValidatorResult->getErrorMessages(); // ['user[email]' => ['"foo@isanemail" must be valid email']]
 ```
 
 ## Validator

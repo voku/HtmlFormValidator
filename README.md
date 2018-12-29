@@ -5,7 +5,7 @@
 [![Total Downloads](https://poser.pugx.org/voku/html-form-validator/downloads)](https://packagist.org/packages/voku/html-form-validator) 
 [![License](https://poser.pugx.org/voku/html-form-validator/license)](https://packagist.org/packages/voku/html-form-validator)
 
-# HTMLFormValidation 
+# :flashlight: HTMLFormValidation 
 
 ## Description
 

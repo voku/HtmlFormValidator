@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace voku\HtmlFormValidator;
 
-use Symfony\Component\CssSelector\Exception\SyntaxErrorException;
 use voku\helper\HtmlDomParser;
 
 class ValidatorResult
@@ -12,7 +11,7 @@ class ValidatorResult
     /**
      * List of errors from validation
      *
-     * @var string[]
+     * @var string[][]
      */
     private $errors = [];
 
@@ -78,35 +77,99 @@ class ValidatorResult
 
     /**
      * @param string          $field
+     * @param string          $fieldRule
      * @param string|string[] $errorMsg
+     * @param mixed           $currentFieldValue
      *
-     * @return ValidatorResult
+     * @return self
      */
-    public function setError(string $field, $errorMsg): self
+    public function setError(string $field, string $fieldRule, $errorMsg, $currentFieldValue): self
     {
-        try {
-            $inputTag = $this->formDocument->find('[name=' . $field . ']', 0);
-        } catch (SyntaxErrorException $syntaxErrorException) {
-            $inputTag = null;
-            // TODO@me -> can the symfony CssSelectorConverter use array-name-attributes?
-        }
-
+        $inputTag = $this->formDocument->find('[name=\'' . $field . '\']', 0);
         if ($inputTag) {
+            /** @noinspection UnusedFunctionResultInspection */
             $inputTag->setAttribute('aria-invalid', 'true');
         }
 
-        if (\is_array($errorMsg) === true) {
-            foreach ($errorMsg as $errorMsgSingle) {
-                $this->errors[$field][] = $errorMsgSingle;
+        // overwrite the error message if needed
+        $fieldRule = (new ValidatorRulesManager)->getClassViaAlias($fieldRule)['class'];
+        $errorMsgFromHtml = $inputTag->getAttribute('data-error-message--' . \strtolower($fieldRule));
+        if ($errorMsgFromHtml) {
+            $errorMsg = \sprintf($errorMsgFromHtml, \htmlspecialchars((string) $currentFieldValue, \ENT_COMPAT));
+        }
+
+        // save the error message per field into this object
+        if (\is_array($errorMsg) === false) {
+            $errorMsg = [$errorMsg];
+        }
+        foreach ($errorMsg as &$errorMsgSingle) {
+            if (
+                isset($this->errors[$field])
+                &&
+                \in_array($errorMsgSingle, $this->errors[$field], true)
+            ) {
+                continue;
             }
-        } else {
-            $this->errors[$field][] = $errorMsg;
+
+            $this->errors[$field][] = $errorMsgSingle;
+        }
+        unset($errorMsgSingle);
+
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param mixed  $value
+     *
+     * @return self
+     */
+    public function setValue(string $field, $value): self
+    {
+        $inputTag = $this->formDocument->find('[name=\'' . $field . '\']', 0);
+        if ($inputTag) {
+            /** @noinspection UnusedFunctionResultInspection */
+            $inputTag->setAttribute('aria-invalid', 'false');
+
+            /** @noinspection UnusedFunctionResultInspection */
+            $inputTag->val($value);
         }
 
         return $this;
     }
 
-    public function setValues(string $field, $value): self
+    /**
+     * Write the error messages into the dom, if needed.
+     *
+     * @return self
+     */
+    public function writeErrorsIntoTheDom(): self
+    {
+        foreach ($this->errors as $field => $errors) {
+            $inputTag = $this->formDocument->find('[name=\'' . $field . '\']', 0);
+            if ($inputTag) {
+                $errorMsgTemplateSelector = $inputTag->getAttribute('data-error-template-selector');
+                if ($errorMsgTemplateSelector) {
+                    $errorMsgTemplate = $this->formDocument->find($errorMsgTemplateSelector, 0);
+                    if ($errorMsgTemplate) {
+                        foreach ($errors as $error) {
+                            $errorMsgTemplate->innerText .= ' ' . $error;
+                        }
+                    }
+                }
+            }
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $field
+     * @param mixed  $value
+     *
+     * @return self
+     */
+    public function saveValue(string $field, $value): self
     {
         $this->values[$field] = $value;
 

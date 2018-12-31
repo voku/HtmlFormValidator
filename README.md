@@ -22,16 +22,72 @@ background, so you can use this independent from your framework of choice.
 composer require voku/html-form-validator
 ```
 
-
-## Quick Start
+## Simple Example
 
 ```php
 use voku\HtmlFormValidator\Validator;
 
 require_once 'composer/autoload.php';
 
-$html = "
-<form action="%s" id="register" method="post">
+$html = '
+<form id="music" method="post">
+  <label>Artist:
+    <select name="top5" required="required">
+      <option>Heino</option>
+      <option>Michael Jackson</option>
+      <option>Tom Waits</option>
+      <option>Nina Hagen</option>
+      <option>Marianne Rosenberg</option>
+    </select>
+  </label>
+</form>
+';
+
+$rules = $formValidator->getAllRules();
+static::assertSame(
+    [
+        'music' => [
+            'top5' => 'in(' . \serialize(['Heino','Michael Jackson','Tom Waits','Nina Hagen','Marianne Rosenberg',]) . ')',
+        ],
+    ],
+    $rules
+);
+
+// --- valid
+
+// fake some data
+$_POST = [
+    'top5' => 'Heino',
+];
+$formValidatorResult = $formValidator->validate($_POST);
+static::assertSame([], $formValidatorResult->getErrorMessages());
+
+// --- invalid
+
+// fake some data
+$_POST = [
+    'top5' => 'fooooo',
+];
+$formValidatorResult = $formValidator->validate($_POST);
+static::assertSame(
+    [
+        'top5' => [
+            '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
+        ],
+    ],
+    $formValidatorResult->getErrorMessages()
+);
+```
+
+## Extended Example
+
+```php
+use voku\HtmlFormValidator\Validator;
+
+require_once 'composer/autoload.php';
+
+$html = '
+<form id="register" method="post">
     <label for="email">Email:</label>
     <input
         type="email"
@@ -40,8 +96,12 @@ $html = "
         value=""
         data-validator="email"
         data-filter="trim"
+        data-error-class="error-foo-bar"
+        data-error-message--email="Your email [%s] address is not correct."
+        data-error-template-selector="span#email-error-message-template"
         required="required"
-    />
+    >
+    <span style="color: red;" id="email-error-message-template"></span>
     
     <label for="username">Name:</label>
     <input
@@ -51,38 +111,124 @@ $html = "
         value=""
         data-validator="notEmpty|maxLength(100)"
         data-filter="strip_tags(<p>)|trim|escape"
+        data-error-class="error-foo-bar"
+        data-error-template-selector="span#username-error-message-template"
         required="required"
-    />
+    >
+    <span style="color: red;" id="username-error-message-template"></span>
     
-    <input type="submit"/>
+    <label for="date">Date:</label>
+    <input 
+        type="text"
+        id="date"
+        name="user[date]"
+        value=""
+        data-validator="dateGerman|notEmpty"
+        data-filter="trim"
+        data-error-class="error-foo-bar"
+        data-error-message--dateGerman="Date is not correct."
+        data-error-message--notEmpty="Date is empty."
+        data-error-template-selector="span#date-error-message-template"
+        required="required"
+    >
+    <span style="color: red;" id="date-error-message-template"></span>
+    
+    <button type="submit">submit</button>
 </form>
-";
+';
 
-$formValidator = new Validator($formHTML);
+$formValidator = new Validator($html);
 
-$formData = [
-        'user' => [
-            'email' => 'foo@isanemail',
-            'name'  => 'bar',
-        ],
-    ];
-
+// fake some data
+$_POST = [
+    'user' => [
+        'email' => 'foo@isanemail',
+        'name'  => 'bar',
+    ],
+];
 
 // validate the form
-$formValidatorResult = $formValidator->validate($formData);
+$formValidatorResult = $formValidator->validate($_POST);
 
 // check the result
-$formValidatorResult->isSuccess(); // false
+static::assertFalse($formValidatorResult->isSuccess());
 
 // get the error messages
-$formValidatorResult->getErrorMessages(); // ['user[email]' => ['"foo@isanemail" must be valid email']]    
+static::assertSame(
+    [
+        'user[email]' => ['Your email [foo@isanemail] address is not correct.'],
+        'user[date]'  => [
+            'Date is not correct.',
+            'Date is empty.',
+        ],
+    ],
+    $formValidatorResult->getErrorMessages()
+);
+
+// get the new html
+static::assertSame(
+    '
+    <form id="register" method="post">
+        <label for="email">Email:</label>
+        <input 
+                type="email" 
+                id="email" 
+                name="user[email]" 
+                value="" 
+                data-validator="email" 
+                data-filter="trim" 
+                data-error-class="error-foo-bar" 
+                data-error-message--email="Your email [%s] address is not correct." 
+                data-error-template-selector="span#email-error-message-template" 
+                required="required" 
+                aria-invalid="true"
+        >            
+        <span style="color: red;" id="email-error-message-template">Your email [foo@isanemail] address is not correct.</span>
+                                
+        <label for="username">Name:</label>
+        <input 
+                type="text" 
+                id="username" 
+                name="user[name]" 
+                value="bar" 
+                data-validator="notEmpty|maxLength(100)" 
+                data-filter="strip_tags(<p>)|trim|escape" 
+                data-error-class="error-foo-bar" 
+                data-error-template-selector="span#username-error-message-template" 
+                required="required" 
+                aria-invalid="false"
+        >            
+        <span style="color: red;" id="username-error-message-template"></span>
+                                
+        <label for="date">Date:</label>
+        <input 
+                type="text" 
+                id="date" 
+                name="user[date]" 
+                value="" 
+                data-validator="dateGerman|notEmpty" 
+                data-filter="trim" 
+                data-error-class="error-foo-bar" 
+                data-error-message--dategerman="Date is not correct." 
+                data-error-message--notempty="Date is empty." 
+                data-error-template-selector="span#date-error-message-template"
+                required="required" 
+                aria-invalid="true"
+        >            
+        <span style="color: red;" id="date-error-message-template">Date is not correct. Date is empty.</span>
+                                
+        <button type="submit">submit</button>
+    </form>
+    ',
+    $formValidatorResult->getHtml()
+);
 ```
 
 ## Validator
 
 You can use all validators from [here](https://github.com/Respect/Validation/blob/1.1/docs/VALIDATORS.md).
 
-e.g.: ```data-validator="date"``` (you need to lowercase the first letter from the class)
+e.g.: ```data-validator="date"``` || ```data-validator="' . \Respect\Validation\Rules\Date::class . '"```  (you need to lowercase the first letter from the class or you can use the class name itself)
 
 You can combine validators simply via "|" ...
 
@@ -90,13 +236,27 @@ e.g.: ```data-validator="notEmpty|maxLength(100)"```
 
 PS: you can add arguments comma separated or you can use serialize -> something like that -> ```in(' . serialize($selectableValues) . ')```
 
-If you wan't to use the HTML5 validation e.g. for min or max values, or for e.g. email then you can use "auto".
+If you want to use the HTML5 validation e.g. for min or max values, or for e.g. email then you can use "auto".
 
 e.g.: ```data-validator="auto"```
 
-If you wan't to limit the submitted values to the values from the form e.g. for checkboxes or radios, then you can use "strict".
+By default we limit the submitted values to the values from the form e.g. for checkboxes, radios or select boxes. If you need to disable this,
+you can use "non-strict". (not recommended)
 
-e.g.: ```data-validator="strict"```
+e.g.: ```data-validator="non-strict"```
+
+By default we use the error messages from the validation exception class, but you can use your own error messages via:
+"data-error-message--RULE_NAME_HERE" in the html.
+
+e.g.: ```data-error-message--email="Email [%s] is not correct"```
+
+By default we don't add error messages into html output, but you can add the error messages with a css selector:
+
+e.g.: ```data-error-template-selector="span#email-error-message-template"```
+
+By default we also don't add error classes, but you can add a new error class via:
+
+e.g. ```data-error-class="error-foo-bar"```
 
 And if you need a more complex validation, then you can add simple-custom validations.
 
@@ -143,10 +303,10 @@ class CustomRuleException extends ValidationException
 {
   public static $defaultTemplates = [
       self::MODE_DEFAULT  => [
-          self::STANDARD => 'Invalid input... \'foobar\' is only allowed here... ', // eg: must be string
+          self::STANDARD => 'Invalid input... \'foobar\' is only allowed here... ',
       ],
       self::MODE_NEGATIVE => [
-          self::STANDARD => 'Invalid input... \'foobar\' is not allowed here... ', // eg: must not be string
+          self::STANDARD => 'Invalid input... \'foobar\' is not allowed here... ',
       ],
   ];
 }

@@ -64,8 +64,7 @@ class ValidatorRulesManager
             $class = $classWithNamespace;
         }
 
-        $class = \lcfirst(\trim($class));
-
+        $class = \ucfirst(\trim(\str_replace(['-', '_'], '', $class)));
         list($class, $classArgs) = ValidatorHelpers::getArgsFromString($class);
 
         return [

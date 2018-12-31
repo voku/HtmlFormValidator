@@ -1,6 +1,8 @@
 <?php
 
 use Respect\Validation\Validator as v;
+use voku\HtmlFormValidator\Rules\MaxLength;
+use voku\HtmlFormValidator\Rules\NonStrict;
 use voku\HtmlFormValidator\Validator;
 
 /**
@@ -94,6 +96,26 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
             <select name="top5"
                     required
                     data-validator="strict|maxLength(10)|minLength(1)"   
+            >
+              <option>Heino</option>
+              <option>Michael Jackson</option>
+              <option>Tom Waits</option>
+              <option>Nina Hagen</option>
+              <option>Marianne Rosenberg</option>
+            </select>
+          </label>
+        </form>
+        ';
+    }
+
+    protected function getBasicSelectFormNonStrict()
+    {
+        return '
+        <form action="%s" id="music">
+          <label>Künstler(in):
+            <select name="top5"
+                    required
+                    data-validator="' . NonStrict::class . '|' . MaxLength::class . '(10)|minLength(1)"   
             >
               <option>Heino</option>
               <option>Michael Jackson</option>
@@ -875,7 +897,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'food' => [
-                    'zutat' => 'strict|in(a:3:{i:0;s:6:"salami";i:1;s:8:"schinken";i:2;s:9:"sardellen";})',
+                    'zutat' => 'strict|in(' . \serialize(['salami', 'schinken', 'sardellen']) . ')',
                 ],
             ],
             $rules
@@ -916,7 +938,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'billing' => [
-                    'Zahlmethode' => 'strict|in(a:3:{i:0;s:10:"Mastercard";i:1;s:4:"Visa";i:2;s:15:"AmericanExpress";})',
+                    'Zahlmethode' => 'strict|in(' . \serialize(['Mastercard', 'Visa', 'AmericanExpress']) . ')',
                 ],
             ],
             $rules
@@ -957,7 +979,15 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'music' => [
-                    'top5' => 'strict|maxLength(10)|minLength(1)|in(a:5:{i:0;s:5:"Heino";i:1;s:15:"Michael Jackson";i:2;s:9:"Tom Waits";i:3;s:10:"Nina Hagen";i:4;s:18:"Marianne Rosenberg";})',
+                    'top5' => 'strict|maxLength(10)|minLength(1)|in(' . \serialize(
+                            [
+                                'Heino',
+                                'Michael Jackson',
+                                'Tom Waits',
+                                'Nina Hagen',
+                                'Marianne Rosenberg',
+                            ]
+                        ) . ')',
                 ],
             ],
             $rules
@@ -996,9 +1026,61 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'top5' => [
-                    0 => '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
+                    '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
                 ],
             ],
+            $formValidatorResult->getErrorMessages()
+        );
+    }
+
+    public function testItCanUseHtmlSelectNonStrict()
+    {
+        $formHTML = $this->getBasicSelectFormNonStrict();
+
+        $formValidator = new Validator($formHTML);
+
+        $rules = $formValidator->getAllRules();
+        static::assertSame(
+            [
+                'music' => [
+                    'top5' => 'voku\HtmlFormValidator\Rules\NonStrict|voku\HtmlFormValidator\Rules\MaxLength(10)|minLength(1)',
+                ],
+            ],
+            $rules
+        );
+        static::assertCount(1, $rules['music']);
+
+        // --- valid
+
+        $formData = [
+            'top5' => 'Heino',
+        ];
+        $formValidatorResult = $formValidator->validate($formData);
+        static::assertSame([], $formValidatorResult->getErrorMessages());
+
+        // --- invalid
+
+        $formData = [
+            'top5' => 'Michael Jackson',
+        ];
+        $formValidatorResult = $formValidator->validate($formData);
+        static::assertSame(
+            [
+                'top5' => [
+                    0 => '"Michael Jackson" is to long.',
+                ],
+            ],
+            $formValidatorResult->getErrorMessages()
+        );
+
+        // --- still valid, because we use non-strict
+
+        $formData = [
+            'top5' => 'fooooo',
+        ];
+        $formValidatorResult = $formValidator->validate($formData);
+        static::assertSame(
+            [],
             $formValidatorResult->getErrorMessages()
         );
     }
@@ -1274,7 +1356,6 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
     public function testWithPost()
     {
-
         $html = '
         <form id="register" method="post">
             <label for="email">Email:</label>
@@ -1283,10 +1364,14 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
                 id="email"
                 name="user[email]"
                 value=""
-                data-validator="email"
+                data-validator="auto"
                 data-filter="trim"
+                data-error-class="error-foo-bar"
+                data-error-message--email="Your email [%s] address is not correct."
+                data-error-template-selector="span#email-error-message-template"
                 required="required"
             >
+            <span style="color: red;" id="email-error-message-template"></span>
             
             <label for="username">Name:</label>
             <input
@@ -1296,10 +1381,29 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
                 value=""
                 data-validator="notEmpty|maxLength(100)"
                 data-filter="strip_tags(<p>)|trim|escape"
+                data-error-class="error-foo-bar"
+                data-error-template-selector="span#username-error-message-template"
                 required="required"
             >
+            <span style="color: red;" id="username-error-message-template"></span>
             
-            <input type="submit">
+            <label for="date">Date:</label>
+            <input 
+                type="text"
+                id="date"
+                name="user[date]"
+                value=""
+                data-validator="dateGerman|notEmpty"
+                data-filter="trim"
+                data-error-class="error-foo-bar"
+                data-error-message--dateGerman="Date is not correct."
+                data-error-message--notEmpty="Date is empty."
+                data-error-template-selector="span#date-error-message-template"
+                required="required"
+            >
+            <span style="color: red;" id="date-error-message-template"></span>
+            
+            <button type="submit">submit</button>
         </form>
         ';
 
@@ -1317,12 +1421,24 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($_POST);
 
         // check the result
-        $formValidatorResult->isSuccess(); // false
+        static::assertFalse($formValidatorResult->isSuccess());
 
         // get the error messages
-        self::assertSame(
-            ['user[email]' => ['"foo@isanemail" must be valid email']],
+        static::assertSame(
+            [
+                'user[email]' => ['Your email [foo@isanemail] address is not correct.'],
+                'user[date]'  => [
+                    'Date is not correct.',
+                    'Date is empty.',
+                ],
+            ],
             $formValidatorResult->getErrorMessages()
+        );
+
+        // get the new html
+        static::assertSame(
+            '<form id="register" method="post">            <label for="email">Email:</label>            <input type="email" id="email" name="user[email]" value="" data-validator="auto" data-filter="trim" data-error-class="error-foo-bar" data-error-message--email="Your email [%s] address is not correct." data-error-template-selector="span#email-error-message-template" required="required" aria-invalid="true">            <span style="color: red;" id="email-error-message-template">Your email [foo@isanemail] address is not correct.</span>                        <label for="username">Name:</label>            <input type="text" id="username" name="user[name]" value="bar" data-validator="notEmpty|maxLength(100)" data-filter="strip_tags(<p>)|trim|escape" data-error-class="error-foo-bar" data-error-template-selector="span#username-error-message-template" required="required" aria-invalid="false">            <span style="color: red;" id="username-error-message-template"></span>                        <label for="date">Date:</label>            <input type="text" id="date" name="user[date]" value="" data-validator="dateGerman|notEmpty" data-filter="trim" data-error-class="error-foo-bar" data-error-message--dategerman="Date is not correct." data-error-message--notempty="Date is empty." data-error-template-selector="span#date-error-message-template" required="required" aria-invalid="true">            <span style="color: red;" id="date-error-message-template">Date is not correct. Date is empty.</span>                        <button type="submit">submit</button>        </form>',
+            $formValidatorResult->getHtml()
         );
     }
 }

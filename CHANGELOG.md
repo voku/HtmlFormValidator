@@ -1,5 +1,8 @@
 # Changelog
 
+### 2.0.0 (2018-12-31)
+- add support for error messages and classes from the dom
+
 ### 1.2.1 (2018-12-29)
 - update vendor libs
 - use phpcs fixer

@@ -15,7 +15,6 @@ use Respect\Validation\Rules\HexRgbColor;
 use Respect\Validation\Rules\Numeric;
 use Respect\Validation\Rules\Phone;
 use Respect\Validation\Rules\Url;
-use Symfony\Component\CssSelector\Exception\SyntaxErrorException;
 use voku\helper\HtmlDomParser;
 use voku\helper\SimpleHtmlDom;
 use voku\helper\UTF8;
@@ -175,9 +174,9 @@ class Validator
             'url'    => Url::class,
             'color'  => HexRgbColor::class,
             'number' => Numeric::class,
-            'date'   => Date::class,
             'range'  => Numeric::class,
             'tel'    => Phone::class,
+            'date'   => Date::class,
             // -> this need localisation e.g. for german / us / etc.
             //'time'   => Time::class,
             //'month'  => Month::class,
@@ -363,7 +362,7 @@ class Validator
             }
         }
 
-        return \count($inputHtmlElement) >= 0;
+        return \count($inputHtmlElement) > 0;
     }
 
     /**
@@ -403,16 +402,9 @@ class Validator
 
         $inputName = $htmlElementField->getAttribute('name');
         $inputType = $htmlElementField->getAttribute('type');
-        $inputPattern = $htmlElementField->getAttribute('pattern');
         $inputRule = $htmlElementField->getAttribute('data-validator');
 
-        $inputMinLength = $htmlElementField->getAttribute('minlength');
-        $inputMaxLength = $htmlElementField->getAttribute('maxlength');
-
-        $inputMin = $htmlElementField->getAttribute('min');
-        $inputMax = $htmlElementField->getAttribute('max');
-
-        if (\strpos($inputRule, 'auto') !== false) {
+        if (\stripos($inputRule, 'auto') !== false) {
 
             //
             // select default rule by input-type
@@ -429,6 +421,7 @@ class Validator
             // html5 pattern to regex
             //
 
+            $inputPattern = $htmlElementField->getAttribute('pattern');
             if ($inputPattern) {
                 $inputRule .= '|regex(/' . $inputPattern . '/)';
             }
@@ -437,24 +430,34 @@ class Validator
             // min- / max values
             //
 
+            $inputMinLength = $htmlElementField->getAttribute('minlength');
             if ($inputMinLength) {
                 $inputRule .= '|minLength(' . \serialize($inputMinLength) . ')';
             }
 
+            $inputMaxLength = $htmlElementField->getAttribute('maxlength');
             if ($inputMaxLength) {
                 $inputRule .= '|maxLength(' . \serialize($inputMaxLength) . ')';
             }
 
+            $inputMin = $htmlElementField->getAttribute('min');
             if ($inputMin) {
                 $inputRule .= '|min(' . \serialize($inputMin) . ')';
             }
 
+            $inputMax = $htmlElementField->getAttribute('max');
             if ($inputMax) {
                 $inputRule .= '|max(' . \serialize($inputMax) . ')';
             }
         }
 
-        if (\strpos($inputRule, 'strict') !== false) {
+        if (
+            \stripos($inputRule, 'NonStrict') !== false
+            ||
+            \stripos($inputRule, 'non-strict') !== false
+        ) {
+            // do not check
+        } else {
             if ($htmlElementField->tag === 'select') {
                 $selectableValues = [];
                 foreach ($htmlElementField->getElementsByTagName('option') as $option) {
@@ -468,15 +471,11 @@ class Validator
                     $inputType === 'radio'
                 )
                 &&
-                $htmlElement) {
+                $htmlElement
+            ) {
                 $selectableValues = [];
 
-                try {
-                    $htmlElementFieldNames = $htmlElement->find('[name=' . $htmlElementField->name . ']');
-                } catch (SyntaxErrorException $syntaxErrorException) {
-                    $htmlElementFieldNames = null;
-                    // TODO@me -> can the symfony CssSelectorConverter use array-name-attributes?
-                }
+                $htmlElementFieldNames = $htmlElement->find('[name=\'' . $htmlElementField->name . '\']');
 
                 if ($htmlElementFieldNames) {
                     foreach ($htmlElementFieldNames as $htmlElementFieldName) {
@@ -496,7 +495,7 @@ class Validator
     }
 
     /**
-     * @param string $phpNamespace <p>e.g.: "voku\\HtmlhtmlElementValidator\\Rules"</p>
+     * @param string $phpNamespace <p>e.g.: "voku\\HtmlFormValidator\\Rules"</p>
      *
      * @return $this
      */
@@ -508,7 +507,7 @@ class Validator
     }
 
     /**
-     * @param string $phpNamespace <p>e.g.: "voku\\HtmlhtmlElementValidator\\Rules"</p>
+     * @param string $phpNamespace <p>e.g.: "voku\\HtmlFormValidator\\Rules"</p>
      *
      * @return $this
      */
@@ -589,7 +588,8 @@ class Validator
                 // save the new values into the result-object
                 //
 
-                $validatorResult->setValues($field, $currentFieldValue);
+                /** @noinspection UnusedFunctionResultInspection */
+                $validatorResult->saveValue($field, $currentFieldValue);
 
                 //
                 // skip validation, if there was no value and validation is not required
@@ -609,6 +609,7 @@ class Validator
 
                 $fieldRules = \preg_split("/\|+(?![^\(?:]*\))/", $fieldRuleOuter);
 
+                $hasPassed = true;
                 foreach ($fieldRules as $fieldRule) {
                     if (!$fieldRule) {
                         continue;
@@ -652,31 +653,39 @@ class Validator
                         }
                     }
 
-                    $hasPassed = false;
                     $translator = $this->getTranslator();
 
                     try {
-                        $hasPassed = $respectValidator->assert($currentFieldValue);
+                        $respectValidator->assert($currentFieldValue);
                     } catch (NestedValidationException $nestedValidationException) {
                         if ($translator) {
+                            /** @noinspection UnusedFunctionResultInspection */
                             $nestedValidationException->setParam('translator', $translator);
                         }
 
-                        $validatorResult->setError($field, $nestedValidationException->getFullMessage());
+                        /** @noinspection UnusedFunctionResultInspection */
+                        $validatorResult->setError($field, $fieldRule, $nestedValidationException->getFullMessage(), $currentFieldValue);
+                        $hasPassed = false;
                     } catch (ValidationException $validationException) {
                         if ($translator) {
                             $validationException->setParam('translator', $translator);
                         }
 
-                        $validatorResult->setError($field, $validationException->getMainMessage());
+                        /** @noinspection UnusedFunctionResultInspection */
+                        $validatorResult->setError($field, $fieldRule, $validationException->getMainMessage(), $currentFieldValue);
+                        $hasPassed = false;
                     }
+                }
 
-                    if ($hasPassed === true) {
-                        continue;
-                    }
+                if ($hasPassed === true) {
+                    /** @noinspection UnusedFunctionResultInspection */
+                    $validatorResult->setValue($field, $currentFieldValue);
                 }
             }
         }
+
+        /** @noinspection UnusedFunctionResultInspection */
+        $validatorResult->writeErrorsIntoTheDom();
 
         return $validatorResult;
     }

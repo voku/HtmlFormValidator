@@ -4,23 +4,25 @@
 [![Latest Stable Version](https://poser.pugx.org/voku/html-form-validator/v/stable)](https://packagist.org/packages/voku/html-form-validator) 
 [![Total Downloads](https://poser.pugx.org/voku/html-form-validator/downloads)](https://packagist.org/packages/voku/html-form-validator) 
 [![License](https://poser.pugx.org/voku/html-form-validator/license)](https://packagist.org/packages/voku/html-form-validator)
+[![Donate to this project using Paypal](https://img.shields.io/badge/paypal-donate-yellow.svg)](https://www.paypal.me/moelleken)
+[![Donate to this project using Patreon](https://img.shields.io/badge/patreon-donate-yellow.svg)](https://www.patreon.com/voku)
 
 # :flashlight: HTMLFormValidation 
 
-## Description
+### Description
 
 HtmlFormValidator is a very easy to use PHP library that will help you 
 to validate your ```<form>``` data and you can use this independent from your framework of choice.
 
 
-## Install via "composer require"
+### Install via "composer require"
 
 ```shell
 composer require voku/html-form-validator
 ```
 
 
-## How does this work?
+### How does this work?
 
 1. First you need to generate a html form, that's completely your part. You can write it by hand or you can generate with a framework or a library, it doesn't matter.
 
@@ -29,7 +31,7 @@ composer require voku/html-form-validator
 3. And finaly we use [Respect/Validation](https://github.com/Respect/Validation) to validate the form.
 
 
-## Simple Example
+### Simple Example
 
 ```php
 use voku\HtmlFormValidator\Validator;
@@ -86,7 +88,7 @@ static::assertSame(
 );
 ```
 
-## Extended Example
+### Extended Example
 
 ```php
 use voku\HtmlFormValidator\Validator;
@@ -231,7 +233,7 @@ static::assertSame(
 );
 ```
 
-## Validator
+### Validator
 
 You can use all validators from [here](https://github.com/Respect/Validation/blob/1.1/docs/VALIDATORS.md).
 
@@ -326,7 +328,7 @@ $formValidator->addCustomRule('foobar', \Respect\Validation\Rules\CustomRule::cl
 e.g.: ```data-validator="foobar"```
 
 
-## Filter
+### Filter
 
 You can also use some simple filters, that will be applied on the input-data.
 
@@ -356,7 +358,7 @@ $formValidator->addCustomFilter(
 e.g.: ```data-filter="append_lall"```
 
 
-## Unit Test
+### Unit Test
 
 1) [Composer](https://getcomposer.org) is a prerequisite for running the tests.
 
@@ -369,3 +371,19 @@ composer install voku/HtmlFormValidator
 ```bash
 ./vendor/bin/phpunit
 ```
+
+### Support
+
+For support and donations please visit [Github](https://github.com/voku/HtmlFormValidator/) | [Issues](https://github.com/voku/HtmlFormValidator/issues) | [PayPal](https://paypal.me/moelleken) | [Patreon](https://www.patreon.com/voku).
+
+For status updates and release announcements please visit [Releases](https://github.com/voku/HtmlFormValidator/releases) | [Twitter](https://twitter.com/suckup_de) | [Patreon](https://www.patreon.com/voku/posts).
+
+For professional support please contact [me](https://about.me/voku).
+
+### Thanks
+
+- Thanks to [GitHub](https://github.com) (Microsoft) for hosting the code and a good infrastructure including Issues-Managment, etc.
+- Thanks to [IntelliJ](https://www.jetbrains.com) as they make the best IDEs for PHP and they gave me an open source license for PhpStorm!
+- Thanks to [Travis CI](https://travis-ci.com/) for being the most awesome, easiest continous integration tool out there!
+- Thanks to [StyleCI](https://styleci.io/) for the simple but powerfull code style check.
+- Thanks to [PHPStan](https://github.com/phpstan/phpstan) && [Psalm](https://github.com/vimeo/psalm) for relly great Static analysis tools and for discover bugs in the code!

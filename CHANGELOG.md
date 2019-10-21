@@ -2,6 +2,7 @@
 
 ### 2.0.1 (2019-10-21)
 - update vendor libs
+- fix errors reported by phpstan (level 7)
 
 ### 2.0.0 (2018-12-31)
 - add support for error messages and classes from the dom

@@ -8,10 +8,6 @@ php:
 os:
   - linux
 
-env:
-  global:
-    - PHP_COMPOSER_SETUP=basic
-
 git:
   depth: 2
 
@@ -25,25 +21,16 @@ matrix:
     - php: nightly
   include:
     - php: 7.0
-    - php: 7.0
-      env: PHP_COMPOSER_SETUP=lowest
     - php: 7.1
-    - php: 7.1
-      env: PHP_COMPOSER_SETUP=lowest
     - php: 7.2
-    - php: 7.2
-      env: PHP_COMPOSER_SETUP=lowest
     - php: 7.3
-    - php: 7.3
-      env: PHP_COMPOSER_SETUP=lowest
 
 before_script:
   - stty cols 120
   - wget https://scrutinizer-ci.com/ocular.phar
   - travis_retry composer self-update
   - travis_retry composer require satooshi/php-coveralls:1.0.0
-  - if [[ $PHP_COMPOSER_SETUP = 'basic' ]]; then travis_retry composer install --prefer-dist --no-interaction; fi
-  - if [[ $PHP_COMPOSER_SETUP = 'lowest' ]]; then travis_retry composer update --prefer-dist --no-interaction --prefer-lowest --prefer-stable; fi
+  - travis_retry composer install --prefer-dist --no-interaction
   - composer dump-autoload -o
 
 script:

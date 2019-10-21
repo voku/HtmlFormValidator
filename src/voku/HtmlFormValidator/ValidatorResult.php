@@ -85,17 +85,16 @@ class ValidatorResult
      */
     public function setError(string $field, string $fieldRule, $errorMsg, $currentFieldValue): self
     {
-        $inputTag = $this->formDocument->find('[name=\'' . $field . '\']', 0);
+        $inputTag = $this->formDocument->findOneOrFalse('[name=\'' . $field . '\']');
         if ($inputTag) {
-            /** @noinspection UnusedFunctionResultInspection */
             $inputTag->setAttribute('aria-invalid', 'true');
-        }
 
-        // overwrite the error message if needed
-        $fieldRule = (new ValidatorRulesManager)->getClassViaAlias($fieldRule)['class'];
-        $errorMsgFromHtml = $inputTag->getAttribute('data-error-message--' . \strtolower($fieldRule));
-        if ($errorMsgFromHtml) {
-            $errorMsg = \sprintf($errorMsgFromHtml, \htmlspecialchars((string) $currentFieldValue, \ENT_COMPAT));
+            // overwrite the error message if needed
+            $fieldRule = (new ValidatorRulesManager())->getClassViaAlias($fieldRule)['class'];
+            $errorMsgFromHtml = $inputTag->getAttribute('data-error-message--' . \strtolower($fieldRule));
+            if ($errorMsgFromHtml) {
+                $errorMsg = \sprintf($errorMsgFromHtml, \htmlspecialchars((string) $currentFieldValue, \ENT_COMPAT));
+            }
         }
 
         // save the error message per field into this object
@@ -126,9 +125,8 @@ class ValidatorResult
      */
     public function setValue(string $field, $value): self
     {
-        $inputTag = $this->formDocument->find('[name=\'' . $field . '\']', 0);
+        $inputTag = $this->formDocument->findOneOrFalse('[name=\'' . $field . '\']');
         if ($inputTag) {
-            /** @noinspection UnusedFunctionResultInspection */
             $inputTag->setAttribute('aria-invalid', 'false');
 
             /** @noinspection UnusedFunctionResultInspection */
@@ -146,11 +144,11 @@ class ValidatorResult
     public function writeErrorsIntoTheDom(): self
     {
         foreach ($this->errors as $field => $errors) {
-            $inputTag = $this->formDocument->find('[name=\'' . $field . '\']', 0);
+            $inputTag = $this->formDocument->findOneOrFalse('[name=\'' . $field . '\']');
             if ($inputTag) {
                 $errorMsgTemplateSelector = $inputTag->getAttribute('data-error-template-selector');
                 if ($errorMsgTemplateSelector) {
-                    $errorMsgTemplate = $this->formDocument->find($errorMsgTemplateSelector, 0);
+                    $errorMsgTemplate = $this->formDocument->findOneOrFalse($errorMsgTemplateSelector);
                     if ($errorMsgTemplate) {
                         foreach ($errors as $error) {
                             $errorMsgTemplate->innertext .= ' ' . $error;

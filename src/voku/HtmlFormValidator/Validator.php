@@ -16,7 +16,7 @@ use Respect\Validation\Rules\Numeric;
 use Respect\Validation\Rules\Phone;
 use Respect\Validation\Rules\Url;
 use voku\helper\HtmlDomParser;
-use voku\helper\SimpleHtmlDom;
+use voku\helper\SimpleHtmlDomInterface;
 use voku\helper\UTF8;
 use voku\HtmlFormValidator\Exceptions\NoValidationRule;
 use voku\HtmlFormValidator\Exceptions\UnknownFilter;
@@ -231,15 +231,19 @@ class Validator
         if ($fieldArrayPos !== false) {
             $fieldStart = UTF8::substr($field, 0, $fieldArrayPos);
             $fieldArray = UTF8::substr($field, $fieldArrayPos);
-            $fieldHelperChar = '';
-            $fieldArrayTmp = \preg_replace_callback(
-                '/\[([^]]+)]/',
-                static function ($match) use ($fieldHelperChar) {
-                    return $match[1] . $fieldHelperChar;
-                },
-                $fieldArray
-            );
-            $fieldArrayTmp = \explode($fieldHelperChar, \trim($fieldArrayTmp, $fieldHelperChar));
+            if ($fieldArray !== false) {
+                $fieldHelperChar = '';
+                $fieldArrayTmp = \preg_replace_callback(
+                    '/\[([^]]+)]/',
+                    static function ($match) use ($fieldHelperChar) {
+                        return $match[1] . $fieldHelperChar;
+                    },
+                    $fieldArray
+                );
+                $fieldArrayTmp = \explode($fieldHelperChar, \trim((string) $fieldArrayTmp, $fieldHelperChar));
+            } else {
+                $fieldArrayTmp = [];
+            }
 
             $i = 0;
             $fieldHelper = [];
@@ -314,17 +318,14 @@ class Validator
         $inputHtmlElement = [];
 
         if ($this->selector) {
-            $htmlElements = $this->htmlElementDocument->find($this->selector);
+            $htmlElement = $this->htmlElementDocument->findOneOrFalse($this->selector);
         } else {
-            $htmlElements = $this->htmlElementDocument->find('form');
+            $htmlElement = $this->htmlElementDocument->findOneOrFalse('form');
         }
 
-        if (\count($htmlElements) === 0) {
+        if (!$htmlElement) {
             return false;
         }
-
-        // get the first found html-element
-        $htmlElement = $htmlElements[0];
 
         // get the "<form>"-id
         if ($htmlElement->id) {
@@ -355,7 +356,7 @@ class Validator
         if (\strpos($htmlElementHelperId, 'html-element-validator-tmp') !== 0) {
             $inputFromFieldsTmpAll = $this->htmlElementDocument->find($htmlElementTagSelector);
             foreach ($inputFromFieldsTmpAll as $inputFromFieldTmp) {
-                if ($inputFromFieldTmp->form === $htmlElementHelperId) {
+                if ($inputFromFieldTmp->getAttribute('form') === $htmlElementHelperId) {
                     $this->parseInputForRules($inputFromFieldTmp, $htmlElementHelperId);
                     $this->parseInputForFilter($inputFromFieldTmp, $htmlElementHelperId);
                 }
@@ -368,10 +369,10 @@ class Validator
     /**
      * Determine if element has filter attributes, and save the given filter.
      *
-     * @param SimpleHtmlDom $inputField
+     * @param SimpleHtmlDomInterface $inputField
      * @param string        $htmlElementHelperId
      */
-    private function parseInputForFilter(SimpleHtmlDom $inputField, string $htmlElementHelperId)
+    private function parseInputForFilter(SimpleHtmlDomInterface $inputField, string $htmlElementHelperId)
     {
         if (!$inputField->hasAttribute('data-filter')) {
             return;
@@ -390,11 +391,11 @@ class Validator
     /**
      * Determine if element has validator attributes, and save the given rule.
      *
-     * @param SimpleHtmlDom      $htmlElementField
+     * @param SimpleHtmlDomInterface      $htmlElementField
      * @param string             $htmlElementHelperId
-     * @param SimpleHtmlDom|null $htmlElement
+     * @param SimpleHtmlDomInterface|null $htmlElement
      */
-    private function parseInputForRules(SimpleHtmlDom $htmlElementField, string $htmlElementHelperId, SimpleHtmlDom $htmlElement = null)
+    private function parseInputForRules(SimpleHtmlDomInterface $htmlElementField, string $htmlElementHelperId, SimpleHtmlDomInterface $htmlElement = null)
     {
         if (!$htmlElementField->hasAttribute('data-validator')) {
             return;
@@ -478,11 +479,11 @@ class Validator
             ) {
                 $selectableValues = [];
 
-                $htmlElementFieldNames = $htmlElement->find('[name=\'' . $htmlElementField->getAttribute('name') . '\']');
+                $htmlElementFieldNames = $htmlElement->findMultiOrFalse('[name=\'' . $htmlElementField->getAttribute('name') . '\']');
 
                 if ($htmlElementFieldNames) {
                     foreach ($htmlElementFieldNames as $htmlElementFieldName) {
-                        $selectableValues[] = $htmlElementFieldName->value;
+                        $selectableValues[] = $htmlElementFieldName->getAttribute('value');
                     }
                 }
 
@@ -578,12 +579,14 @@ class Validator
                     $filtersOuter = $this->filters[$htmlElementHelperId][$field];
                     $fieldFilters = \preg_split("/\|+(?![^(]*\))/", $filtersOuter);
 
-                    foreach ($fieldFilters as $fieldFilter) {
-                        if (!$fieldFilter) {
-                            continue;
-                        }
+                    if ($fieldFilters !== false) {
+                        foreach ($fieldFilters as $fieldFilter) {
+                            if (!$fieldFilter) {
+                                continue;
+                            }
 
-                        $currentFieldValue = $this->applyFilter($currentFieldValue, $fieldFilter);
+                            $currentFieldValue = $this->applyFilter($currentFieldValue, $fieldFilter);
+                        }
                     }
                 }
 
@@ -612,72 +615,74 @@ class Validator
                 $fieldRules = \preg_split("/\|+(?![^(?:]*\))/", $fieldRuleOuter);
 
                 $hasPassed = true;
-                foreach ($fieldRules as $fieldRule) {
-                    if (!$fieldRule) {
-                        continue;
-                    }
-
-                    $validationClassArray = $this->validatorRulesManager->getClassViaAlias($fieldRule);
-
-                    if ($validationClassArray['object']) {
-                        $validationClass = $validationClassArray['object'];
-                    } elseif ($validationClassArray['class']) {
-                        $validationClass = $validationClassArray['class'];
-                    } else {
-                        $validationClass = null;
-                    }
-
-                    $validationClassArgs = $validationClassArray['classArgs'] ?? null;
-
-                    if ($validationClass instanceof AbstractRule) {
-                        $respectValidator = $validationClass;
-                    } else {
-                        $respectValidatorFactory = new Factory();
-                        foreach ($this->rules_namespaces['prepend'] as $rules_namespace) {
-                            $respectValidatorFactory->prependRulePrefix($rules_namespace);
+                if ($fieldRules !== false) {
+                    foreach ($fieldRules as $fieldRule) {
+                        if (!$fieldRule) {
+                            continue;
                         }
-                        foreach ($this->rules_namespaces['append'] as $rules_namespace) {
-                            $respectValidatorFactory->appendRulePrefix($rules_namespace);
+
+                        $validationClassArray = $this->validatorRulesManager->getClassViaAlias($fieldRule);
+
+                        if ($validationClassArray['object']) {
+                            $validationClass = $validationClassArray['object'];
+                        } elseif ($validationClassArray['class']) {
+                            $validationClass = $validationClassArray['class'];
+                        } else {
+                            $validationClass = null;
                         }
+
+                        $validationClassArgs = $validationClassArray['classArgs'] ?? null;
+
+                        if ($validationClass instanceof AbstractRule) {
+                            $respectValidator = $validationClass;
+                        } else {
+                            $respectValidatorFactory = new Factory();
+                            foreach ($this->rules_namespaces['prepend'] as $rules_namespace) {
+                                $respectValidatorFactory->prependRulePrefix($rules_namespace);
+                            }
+                            foreach ($this->rules_namespaces['append'] as $rules_namespace) {
+                                $respectValidatorFactory->appendRulePrefix($rules_namespace);
+                            }
+
+                            try {
+                                if ($validationClassArgs !== null) {
+                                    $respectValidator = $respectValidatorFactory->rule($validationClass, $validationClassArgs);
+                                } else {
+                                    $respectValidator = $respectValidatorFactory->rule($validationClass);
+                                }
+                            } catch (ComponentException $componentException) {
+                                throw new UnknownValidationRule(
+                                    'No rule defined for: ' . $field . ' (rule: ' . $fieldRule . ' | class: ' . $validationClass . ')',
+                                    500,
+                                    $componentException
+                                );
+                            }
+                        }
+
+                        $translator = $this->getTranslator();
 
                         try {
-                            if ($validationClassArgs !== null) {
-                                $respectValidator = $respectValidatorFactory->rule($validationClass, $validationClassArgs);
-                            } else {
-                                $respectValidator = $respectValidatorFactory->rule($validationClass);
+                            $respectValidator->assert($currentFieldValue);
+                        } catch (NestedValidationException $nestedValidationException) {
+                            if ($translator) {
+                                $nestedValidationException->setParam('translator', $translator);
                             }
-                        } catch (ComponentException $componentException) {
-                            throw new UnknownValidationRule(
-                                'No rule defined for: ' . $field . ' (rule: ' . $fieldRule . ' | class: ' . $validationClass . ')',
-                                500,
-                                $componentException
-                            );
+
+                            $validatorResult->setError($field, $fieldRule, $nestedValidationException->getFullMessage(), $currentFieldValue);
+                            $hasPassed = false;
+                        } catch (ValidationException $validationException) {
+                            if ($translator) {
+                                $validationException->setParam('translator', $translator);
+                            }
+
+                            $validatorResult->setError($field, $fieldRule, $validationException->getMainMessage(), $currentFieldValue);
+                            $hasPassed = false;
                         }
                     }
 
-                    $translator = $this->getTranslator();
-
-                    try {
-                        $respectValidator->assert($currentFieldValue);
-                    } catch (NestedValidationException $nestedValidationException) {
-                        if ($translator) {
-                            $nestedValidationException->setParam('translator', $translator);
-                        }
-
-                        $validatorResult->setError($field, $fieldRule, $nestedValidationException->getFullMessage(), $currentFieldValue);
-                        $hasPassed = false;
-                    } catch (ValidationException $validationException) {
-                        if ($translator) {
-                            $validationException->setParam('translator', $translator);
-                        }
-
-                        $validatorResult->setError($field, $fieldRule, $validationException->getMainMessage(), $currentFieldValue);
-                        $hasPassed = false;
+                    if ($hasPassed === true) {
+                        $validatorResult->setValue($field, $currentFieldValue);
                     }
-                }
-
-                if ($hasPassed === true) {
-                    $validatorResult->setValue($field, $currentFieldValue);
                 }
             }
         }

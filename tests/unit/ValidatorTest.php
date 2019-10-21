@@ -980,14 +980,14 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
             [
                 'music' => [
                     'top5' => 'strict|maxLength(10)|minLength(1)|in(' . \serialize(
-                            [
-                                'Heino',
-                                'Michael Jackson',
-                                'Tom Waits',
-                                'Nina Hagen',
-                                'Marianne Rosenberg',
-                            ]
-                        ) . ')',
+                        [
+                            'Heino',
+                            'Michael Jackson',
+                            'Tom Waits',
+                            'Nina Hagen',
+                            'Marianne Rosenberg',
+                        ]
+                    ) . ')',
                 ],
             ],
             $rules

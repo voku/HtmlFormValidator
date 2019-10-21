@@ -23,7 +23,8 @@ class ValidatorRulesManager
     /**
      * @param string $rule
      *
-     * @return array <p>keys: 'class', 'classArgs', 'object'</p>
+     * @return array
+     *               <p>keys: 'class', 'classArgs', 'object'</p>
      */
     public function getClassViaAlias(string $rule): array
     {
@@ -53,12 +54,11 @@ class ValidatorRulesManager
         if (\strpos($classWithNamespace, '\\') !== false) {
             $class =
                 \substr(
-                    \strrchr(
+                    (string) \strrchr(
                         $classWithNamespace,
                         '\\'
                     ),
                     1
-
                 );
         } else {
             $class = $classWithNamespace;

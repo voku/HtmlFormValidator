@@ -233,8 +233,8 @@ class Validator
             $fieldArray = UTF8::substr($field, $fieldArrayPos);
             $fieldHelperChar = '';
             $fieldArrayTmp = \preg_replace_callback(
-                '/\[([^\]]+)\]/',
-                function ($match) use ($fieldHelperChar) {
+                '/\[([^]]+)]/',
+                static function ($match) use ($fieldHelperChar) {
                     return $match[1] . $fieldHelperChar;
                 },
                 $fieldArray
@@ -451,6 +451,8 @@ class Validator
             }
         }
 
+        /** @noinspection MissingOrEmptyGroupStatementInspection */
+        /** @noinspection PhpStatementHasEmptyBodyInspection */
         if (
             \stripos($inputRule, 'NonStrict') !== false
             ||
@@ -458,6 +460,7 @@ class Validator
         ) {
             // do not check
         } else {
+            /** @noinspection NestedPositiveIfStatementsInspection */
             if ($htmlElementField->tag === 'select') {
                 $selectableValues = [];
                 foreach ($htmlElementField->getElementsByTagName('option') as $option) {
@@ -475,7 +478,7 @@ class Validator
             ) {
                 $selectableValues = [];
 
-                $htmlElementFieldNames = $htmlElement->find('[name=\'' . $htmlElementField->name . '\']');
+                $htmlElementFieldNames = $htmlElement->find('[name=\'' . $htmlElementField->getAttribute('name') . '\']');
 
                 if ($htmlElementFieldNames) {
                     foreach ($htmlElementFieldNames as $htmlElementFieldName) {
@@ -501,7 +504,7 @@ class Validator
      */
     public function appendRulesNamespace(string $phpNamespace): self
     {
-        \array_push($this->rules_namespaces['append'], $this->filterRulesNamespace($phpNamespace));
+        $this->rules_namespaces['append'][] = $this->filterRulesNamespace($phpNamespace);
 
         return $this;
     }
@@ -573,7 +576,7 @@ class Validator
 
                 if (isset($this->filters[$htmlElementHelperId][$field])) {
                     $filtersOuter = $this->filters[$htmlElementHelperId][$field];
-                    $fieldFilters = \preg_split("/\|+(?![^\(]*\))/", $filtersOuter);
+                    $fieldFilters = \preg_split("/\|+(?![^(]*\))/", $filtersOuter);
 
                     foreach ($fieldFilters as $fieldFilter) {
                         if (!$fieldFilter) {
@@ -588,7 +591,6 @@ class Validator
                 // save the new values into the result-object
                 //
 
-                /** @noinspection UnusedFunctionResultInspection */
                 $validatorResult->saveValue($field, $currentFieldValue);
 
                 //
@@ -607,7 +609,7 @@ class Validator
                 // use the validation rules from the dom
                 //
 
-                $fieldRules = \preg_split("/\|+(?![^\(?:]*\))/", $fieldRuleOuter);
+                $fieldRules = \preg_split("/\|+(?![^(?:]*\))/", $fieldRuleOuter);
 
                 $hasPassed = true;
                 foreach ($fieldRules as $fieldRule) {
@@ -659,11 +661,9 @@ class Validator
                         $respectValidator->assert($currentFieldValue);
                     } catch (NestedValidationException $nestedValidationException) {
                         if ($translator) {
-                            /** @noinspection UnusedFunctionResultInspection */
                             $nestedValidationException->setParam('translator', $translator);
                         }
 
-                        /** @noinspection UnusedFunctionResultInspection */
                         $validatorResult->setError($field, $fieldRule, $nestedValidationException->getFullMessage(), $currentFieldValue);
                         $hasPassed = false;
                     } catch (ValidationException $validationException) {
@@ -671,20 +671,17 @@ class Validator
                             $validationException->setParam('translator', $translator);
                         }
 
-                        /** @noinspection UnusedFunctionResultInspection */
                         $validatorResult->setError($field, $fieldRule, $validationException->getMainMessage(), $currentFieldValue);
                         $hasPassed = false;
                     }
                 }
 
                 if ($hasPassed === true) {
-                    /** @noinspection UnusedFunctionResultInspection */
                     $validatorResult->setValue($field, $currentFieldValue);
                 }
             }
         }
 
-        /** @noinspection UnusedFunctionResultInspection */
         $validatorResult->writeErrorsIntoTheDom();
 
         return $validatorResult;

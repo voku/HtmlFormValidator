@@ -153,7 +153,7 @@ class ValidatorResult
                     $errorMsgTemplate = $this->formDocument->find($errorMsgTemplateSelector, 0);
                     if ($errorMsgTemplate) {
                         foreach ($errors as $error) {
-                            $errorMsgTemplate->innerText .= ' ' . $error;
+                            $errorMsgTemplate->innertext .= ' ' . $error;
                         }
                     }
                 }

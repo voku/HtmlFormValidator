@@ -1437,7 +1437,21 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         // get the new html
         static::assertSame(
-            '<form id="register" method="post">            <label for="email">Email:</label>            <input type="email" id="email" name="user[email]" value="" data-validator="auto" data-filter="trim" data-error-class="error-foo-bar" data-error-message--email="Your email [%s] address is not correct." data-error-template-selector="span#email-error-message-template" required="required" aria-invalid="true">            <span style="color: red;" id="email-error-message-template">Your email [foo@isanemail] address is not correct.</span>                        <label for="username">Name:</label>            <input type="text" id="username" name="user[name]" value="bar" data-validator="notEmpty|maxLength(100)" data-filter="strip_tags(<p>)|trim|escape" data-error-class="error-foo-bar" data-error-template-selector="span#username-error-message-template" required="required" aria-invalid="false">            <span style="color: red;" id="username-error-message-template"></span>                        <label for="date">Date:</label>            <input type="text" id="date" name="user[date]" value="" data-validator="dateGerman|notEmpty" data-filter="trim" data-error-class="error-foo-bar" data-error-message--dategerman="Date is not correct." data-error-message--notempty="Date is empty." data-error-template-selector="span#date-error-message-template" required="required" aria-invalid="true">            <span style="color: red;" id="date-error-message-template">Date is not correct. Date is empty.</span>                        <button type="submit">submit</button>        </form>',
+            '<form id="register" method="post">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="user[email]" value="" data-validator="auto" data-filter="trim" data-error-class="error-foo-bar" data-error-message--email="Your email [%s] address is not correct." data-error-template-selector="span#email-error-message-template" required="required" aria-invalid="true">
+            <span style="color: red;" id="email-error-message-template">Your email [foo@isanemail] address is not correct.</span>
+            
+            <label for="username">Name:</label>
+            <input type="text" id="username" name="user[name]" value="bar" data-validator="notEmpty|maxLength(100)" data-filter="strip_tags(<p>)|trim|escape" data-error-class="error-foo-bar" data-error-template-selector="span#username-error-message-template" required="required" aria-invalid="false">
+            <span style="color: red;" id="username-error-message-template"></span>
+            
+            <label for="date">Date:</label>
+            <input type="text" id="date" name="user[date]" value="" data-validator="dateGerman|notEmpty" data-filter="trim" data-error-class="error-foo-bar" data-error-message--dategerman="Date is not correct." data-error-message--notempty="Date is empty." data-error-template-selector="span#date-error-message-template" required="required" aria-invalid="true">
+            <span style="color: red;" id="date-error-message-template">Date is not correct. Date is empty.</span>
+            
+            <button type="submit">submit</button>
+        </form>',
             $formValidatorResult->getHtml()
         );
     }

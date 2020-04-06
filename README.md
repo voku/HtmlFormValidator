@@ -272,9 +272,9 @@ And if you need a more complex validation, then you can add simple-custom valida
 ```php
 $formValidator->addCustomRule(
     'foobar',
-    v::allOf(
-        v::intVal(),
-        v::positive()
+    \Respect\Validation\Validator::allOf(
+        \Respect\Validation\Validator::intVal(),
+        \Respect\Validation\Validator::positive()
     )
 );
 ```

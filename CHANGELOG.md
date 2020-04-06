@@ -1,5 +1,9 @@
 # Changelog
 
+### 2.1.0 (2020-04-07)
+- update vendor libs
+- add simple "Email"-Rule
+
 ### 2.0.1 (2019-10-21)
 - update vendor libs
 - fix errors reported by phpstan (level 7)

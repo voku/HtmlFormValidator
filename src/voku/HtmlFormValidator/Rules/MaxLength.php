@@ -14,7 +14,7 @@ class MaxLength extends AbstractRule
         $this->maxLength = $maxLength;
     }
 
-    public function validate($input)
+    public function validate($input): bool
     {
         $internValidate = new Length(null, $this->maxLength);
 

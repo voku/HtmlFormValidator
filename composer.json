@@ -1,25 +1,26 @@
 {
-  "name": "voku/html-form-validator",
-  "description": "HTML <form> validation without trouble, easy filtering & validation.",
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Lars Moelleken",
-      "email": "lars@moelleken.org"
+    "name": "voku/html-form-validator",
+    "description": "HTML <form> validation without trouble, easy filtering & validation.",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Lars Moelleken",
+            "email": "lars@moelleken.org"
+        }
+    ],
+    "require": {
+        "php": ">=7.0.0",
+        "respect/validation": "~1.1",
+        "voku/email-check": "~3.0",
+        "voku/simple_html_dom": "~4.7",
+        "voku/portable-utf8": "~5.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "~6.0 || ~7.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "voku\\": "src/voku/"
+        }
     }
-  ],
-  "require": {
-    "php": ">=7.0.0",
-    "respect/validation": "~1.1",
-    "voku/simple_html_dom": "~4.7",
-    "voku/portable-utf8": "~5.4"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "~6.0 || ~7.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "voku\\": "src/voku/"
-    }
-  }
 }

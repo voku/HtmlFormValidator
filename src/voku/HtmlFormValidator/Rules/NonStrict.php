@@ -9,7 +9,7 @@ use Respect\Validation\Rules\AbstractRule;
  */
 class NonStrict extends AbstractRule
 {
-    public function validate($input)
+    public function validate($input): bool
     {
         return true;
     }

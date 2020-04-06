@@ -14,7 +14,7 @@ class MinLength extends AbstractRule
         $this->minLength = $minLength;
     }
 
-    public function validate($input)
+    public function validate($input): bool
     {
         $internValidate = new Length($this->minLength, null);
 

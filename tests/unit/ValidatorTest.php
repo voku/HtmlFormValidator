@@ -417,7 +417,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'user-register' => [
-                    'user[1][email]' => 'auto|maxLength(200)|Respect\Validation\Rules\Email',
+                    'user[1][email]' => 'auto|maxLength(200)|voku\HtmlFormValidator\Rules\Email',
                     'user[2][name]'  => 'notEmpty',
                 ],
             ],
@@ -1280,7 +1280,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'register' => [
-                    'email' => 'auto|Respect\Validation\Rules\Email',
+                    'email' => 'auto|voku\HtmlFormValidator\Rules\Email',
                 ],
             ],
             $formValidator->getAllRules()
@@ -1299,7 +1299,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'register' => [
-                    'email' => 'auto|Respect\Validation\Rules\Email',
+                    'email' => 'auto|voku\HtmlFormValidator\Rules\Email',
                 ],
             ],
             $formValidator->getAllRules()
@@ -1440,7 +1440,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
             '<form id="register" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="user[email]" value="" data-validator="auto" data-filter="trim" data-error-class="error-foo-bar" data-error-message--email="Your email [%s] address is not correct." data-error-template-selector="span#email-error-message-template" required="required" aria-invalid="true">
-            <span style="color: red;" id="email-error-message-template">Your email [foo@isanemail] address is not correct.</span>
+            <span style="color: red;" id="email-error-message-template"><p>Your email [foo@isanemail] address is not correct.</p></span>
             
             <label for="username">Name:</label>
             <input type="text" id="username" name="user[name]" value="bar" data-validator="notEmpty|maxLength(100)" data-filter="strip_tags(<p>)|trim|escape" data-error-class="error-foo-bar" data-error-template-selector="span#username-error-message-template" required="required" aria-invalid="false">
@@ -1448,7 +1448,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
             
             <label for="date">Date:</label>
             <input type="text" id="date" name="user[date]" value="" data-validator="dateGerman|notEmpty" data-filter="trim" data-error-class="error-foo-bar" data-error-message--dategerman="Date is not correct." data-error-message--notempty="Date is empty." data-error-template-selector="span#date-error-message-template" required="required" aria-invalid="true">
-            <span style="color: red;" id="date-error-message-template">Date is not correct. Date is empty.</span>
+            <span style="color: red;" id="date-error-message-template"><p>Date is not correct.</p> Date is empty.</span>
             
             <button type="submit">submit</button>
         </form>',

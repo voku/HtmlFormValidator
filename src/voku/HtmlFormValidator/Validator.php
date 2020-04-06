@@ -10,7 +10,6 @@ use Respect\Validation\Exceptions\ValidationException;
 use Respect\Validation\Factory;
 use Respect\Validation\Rules\AbstractRule;
 use Respect\Validation\Rules\Date;
-use Respect\Validation\Rules\Email;
 use Respect\Validation\Rules\HexRgbColor;
 use Respect\Validation\Rules\Numeric;
 use Respect\Validation\Rules\Phone;
@@ -170,7 +169,7 @@ class Validator
     public function autoSelectRuleByInputType(string $type)
     {
         $matchingArray = [
-            'email'  => Email::class,
+            'email'  => \voku\HtmlFormValidator\Rules\Email::class,
             'url'    => Url::class,
             'color'  => HexRgbColor::class,
             'number' => Numeric::class,

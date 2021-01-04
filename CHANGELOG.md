@@ -1,5 +1,10 @@
 # Changelog
 
+### 3.0.0 (2021-01-04)
+- update "respect/validation" from v1 -> v2
+- min. PHP 7.3 is required
+- fix bugs reported by PHPStan
+
 ### 2.1.0 (2020-04-07)
 - update vendor libs
 - add simple "Email"-Rule

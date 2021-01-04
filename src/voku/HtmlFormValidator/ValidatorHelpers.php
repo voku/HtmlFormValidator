@@ -16,7 +16,7 @@ final class ValidatorHelpers
     /**
      * @param string $string
      *
-     * @return array
+     * @return array<int, array<bool|string|null>|string>
      */
     public static function getArgsFromString($string): array
     {

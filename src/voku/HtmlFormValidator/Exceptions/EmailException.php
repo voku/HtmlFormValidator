@@ -4,7 +4,7 @@ namespace voku\HtmlFormValidator\Exceptions;
 
 class EmailException extends \Respect\Validation\Exceptions\ValidationException
 {
-    public static $defaultTemplates = [
+    public $defaultTemplates = [
         self::MODE_DEFAULT => [
             self::STANDARD => '{{name}} must be valid email',
         ],

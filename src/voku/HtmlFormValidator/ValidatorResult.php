@@ -16,7 +16,7 @@ class ValidatorResult
     private $errors = [];
 
     /**
-     * @var array
+     * @var array<mixed>
      */
     private $values = [];
 
@@ -44,7 +44,7 @@ class ValidatorResult
     }
 
     /**
-     * @return array
+     * @return string[][]
      */
     public function getErrorMessages(): array
     {
@@ -60,7 +60,7 @@ class ValidatorResult
     }
 
     /**
-     * @return array
+     * @return array<mixed>
      */
     public function getValues(): array
     {

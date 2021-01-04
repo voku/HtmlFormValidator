@@ -4,7 +4,7 @@ namespace Respect\Validation\Exceptions;
 
 class CustomRuleException extends ValidationException
 {
-    public static $defaultTemplates = [
+    public $defaultTemplates = [
         self::MODE_DEFAULT => [
             self::STANDARD => 'Invalid input... \'foobar\' is only allowed here... ', // eg: must be string
         ],

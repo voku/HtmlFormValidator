@@ -11,7 +11,7 @@ use Respect\Validation\Factory;
 use Respect\Validation\Rules\AbstractRule;
 use Respect\Validation\Rules\Date;
 use Respect\Validation\Rules\HexRgbColor;
-use Respect\Validation\Rules\Numeric;
+use Respect\Validation\Rules\NumericVal;
 use Respect\Validation\Rules\Phone;
 use Respect\Validation\Rules\Url;
 use voku\helper\HtmlDomParser;
@@ -89,6 +89,8 @@ class Validator
     /**
      * @param string   $name   <p>A name for the "data-filter"-attribute in the dom.</p>
      * @param callable $filter <p>A custom filter.</p>
+     *
+     * @return void
      */
     public function addCustomFilter(string $name, callable $filter)
     {
@@ -96,8 +98,10 @@ class Validator
     }
 
     /**
-     * @param string              $name      <p>A name for the "data-validator"-attribute in the dom.</p>
-     * @param AbstractRule|string $validator <p>A custom validation class.</p>
+     * @param string                     $name      <p>A name for the "data-validator"-attribute in the dom.</p>
+     * @param AbstractRule|class-string<AbstractRule> $validator <p>A custom validation class.</p>
+     *
+     * @return void
      */
     public function addCustomRule(string $name, $validator)
     {
@@ -131,7 +135,9 @@ class Validator
         // get arguments
         //
 
-        list($fieldFilter, $fieldFilterArgs) = ValidatorHelpers::getArgsFromString($fieldFilter);
+        [$fieldFilter, $fieldFilterArgs] = ValidatorHelpers::getArgsFromString($fieldFilter);
+        \assert(\is_string($fieldFilter));
+        \assert(\is_array($fieldFilterArgs));
 
         $currentFieldData = (array) $currentFieldData;
         foreach ($fieldFilterArgs as $arg) {
@@ -172,8 +178,8 @@ class Validator
             'email'  => \voku\HtmlFormValidator\Rules\Email::class,
             'url'    => Url::class,
             'color'  => HexRgbColor::class,
-            'number' => Numeric::class,
-            'range'  => Numeric::class,
+            'number' => NumericVal::class,
+            'range'  => NumericVal::class,
             'tel'    => Phone::class,
             'date'   => Date::class,
             // -> this need localisation e.g. for german / us / etc.
@@ -219,7 +225,7 @@ class Validator
     }
 
     /**
-     * @param array  $htmlElementValues
+     * @param array<mixed> $htmlElementValues
      * @param string $field
      *
      * @return mixed|null
@@ -314,7 +320,6 @@ class Validator
     {
         // init
         $this->rules = [];
-        $inputHtmlElement = [];
 
         if ($this->selector) {
             $htmlElement = $this->htmlElementDocument->findOneOrFalse($this->selector);
@@ -345,10 +350,12 @@ class Validator
         $htmlElementTagSelector = 'input, textarea, select';
 
         // get the <input>-elements from the htmlElement
-        $inputFromFields = $htmlElement->find($htmlElementTagSelector);
-        foreach ($inputFromFields as $inputhtmlElementField) {
-            $this->parseInputForRules($inputhtmlElementField, $htmlElementHelperId, $htmlElement);
-            $this->parseInputForFilter($inputhtmlElementField, $htmlElementHelperId);
+        $inputFromFields = $htmlElement->findMultiOrFalse($htmlElementTagSelector);
+        if ($inputFromFields) {
+            foreach ($inputFromFields as $inputhtmlElementField) {
+                $this->parseInputForRules($inputhtmlElementField, $htmlElementHelperId, $htmlElement);
+                $this->parseInputForFilter($inputhtmlElementField, $htmlElementHelperId);
+            }
         }
 
         // get the <input>-elements with a matching form="id"
@@ -362,7 +369,7 @@ class Validator
             }
         }
 
-        return \count($inputHtmlElement) > 0;
+        return true;
     }
 
     /**
@@ -370,6 +377,8 @@ class Validator
      *
      * @param SimpleHtmlDomInterface $inputField
      * @param string        $htmlElementHelperId
+     *
+     * @return void
      */
     private function parseInputForFilter(SimpleHtmlDomInterface $inputField, string $htmlElementHelperId)
     {
@@ -393,9 +402,14 @@ class Validator
      * @param SimpleHtmlDomInterface      $htmlElementField
      * @param string             $htmlElementHelperId
      * @param SimpleHtmlDomInterface|null $htmlElement
+     *
+     * @return void
      */
-    private function parseInputForRules(SimpleHtmlDomInterface $htmlElementField, string $htmlElementHelperId, SimpleHtmlDomInterface $htmlElement = null)
-    {
+    private function parseInputForRules(
+        SimpleHtmlDomInterface $htmlElementField,
+        string $htmlElementHelperId,
+        SimpleHtmlDomInterface $htmlElement = null
+    ) {
         if (!$htmlElementField->hasAttribute('data-validator')) {
             return;
         }
@@ -479,7 +493,6 @@ class Validator
                 $selectableValues = [];
 
                 $htmlElementFieldNames = $htmlElement->findMultiOrFalse('[name=\'' . $htmlElementField->getAttribute('name') . '\']');
-
                 if ($htmlElementFieldNames) {
                     foreach ($htmlElementFieldNames as $htmlElementFieldName) {
                         $selectableValues[] = $htmlElementFieldName->getAttribute('value');
@@ -544,7 +557,7 @@ class Validator
     /**
      * Loop the htmlElement data through htmlElement rules.
      *
-     * @param array $htmlElementValues
+     * @param array<mixed> $htmlElementValues
      * @param bool  $useNoValidationRuleException
      *
      * @throws UnknownValidationRule
@@ -637,10 +650,16 @@ class Validator
                         } else {
                             $respectValidatorFactory = new Factory();
                             foreach ($this->rules_namespaces['prepend'] as $rules_namespace) {
-                                $respectValidatorFactory->prependRulePrefix($rules_namespace);
+                                $respectValidatorFactory = $respectValidatorFactory->withRuleNamespace($rules_namespace);
                             }
                             foreach ($this->rules_namespaces['append'] as $rules_namespace) {
-                                $respectValidatorFactory->appendRulePrefix($rules_namespace);
+                                $respectValidatorFactory = $respectValidatorFactory->withRuleNamespace($rules_namespace);
+                            }
+                            $translator = $this->getTranslator();
+                            if ($translator) {
+                                Factory::setDefaultInstance(
+                                    $respectValidatorFactory->withTranslator('gettext')
+                                );
                             }
 
                             try {
@@ -658,23 +677,13 @@ class Validator
                             }
                         }
 
-                        $translator = $this->getTranslator();
-
                         try {
                             $respectValidator->assert($currentFieldValue);
                         } catch (NestedValidationException $nestedValidationException) {
-                            if ($translator) {
-                                $nestedValidationException->setParam('translator', $translator);
-                            }
-
                             $validatorResult->setError($field, $fieldRule, $nestedValidationException->getFullMessage(), $currentFieldValue);
                             $hasPassed = false;
                         } catch (ValidationException $validationException) {
-                            if ($translator) {
-                                $validationException->setParam('translator', $translator);
-                            }
-
-                            $validatorResult->setError($field, $fieldRule, $validationException->getMainMessage(), $currentFieldValue);
+                            $validatorResult->setError($field, $fieldRule, $validationException->getMessage(), $currentFieldValue);
                             $hasPassed = false;
                         }
                     }

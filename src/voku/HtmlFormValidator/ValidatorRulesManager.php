@@ -7,13 +7,15 @@ use Respect\Validation\Rules\AbstractRule;
 class ValidatorRulesManager
 {
     /**
-     * @var AbstractRule[]|string[]
+     * @var AbstractRule[]|class-string<AbstractRule>[]
      */
     private $rules = [];
 
     /**
-     * @param string              $name
-     * @param AbstractRule|string $validatorClassName
+     * @param string                     $name
+     * @param AbstractRule|class-string<AbstractRule> $validatorClassName
+     *
+     * @return void
      */
     public function addCustomRule(string $name, $validatorClassName)
     {
@@ -23,8 +25,11 @@ class ValidatorRulesManager
     /**
      * @param string $rule
      *
-     * @return array
-     *               <p>keys: 'class', 'classArgs', 'object'</p>
+     * @return array{
+     *     class: null|string,
+     *     classArgs: null|array<array-key, mixed>,
+     *     object: null|AbstractRule
+     * }
      */
     public function getClassViaAlias(string $rule): array
     {
@@ -65,11 +70,13 @@ class ValidatorRulesManager
         }
 
         $class = \ucfirst(\trim(\str_replace(['-', '_'], '', $class)));
-        list($class, $classArgs) = ValidatorHelpers::getArgsFromString($class);
+        [$class, $classArgs] = ValidatorHelpers::getArgsFromString($class);
+        \assert(\is_string($class));
 
+        /** @noinspection UnnecessaryEmptinessCheckInspection */
         return [
             'class'     => $class,
-            'classArgs' => (\count($classArgs) !== 0 ? $classArgs : null),
+            'classArgs' => (\is_array($classArgs) && \count($classArgs) !== 0 ? $classArgs : null),
             'object'    => null,
         ];
     }

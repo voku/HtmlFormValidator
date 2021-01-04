@@ -9,7 +9,7 @@ class CustomRule extends AbstractRule
      *
      * @return bool
      */
-    public function validate($value)
+    public function validate($value): bool
     {
         return $value === 'foobar';
     }

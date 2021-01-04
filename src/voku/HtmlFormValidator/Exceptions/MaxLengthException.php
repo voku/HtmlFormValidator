@@ -6,7 +6,7 @@ use Respect\Validation\Exceptions\ValidationException;
 
 class MaxLengthException extends ValidationException
 {
-    public static $defaultTemplates = [
+    public $defaultTemplates = [
         self::MODE_DEFAULT => [
             self::STANDARD => '{{name}} is to long.',
         ],

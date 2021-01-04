@@ -537,7 +537,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'user[email]' => [
-                    0 => 'Error: "foo@isanemail" must be valid email',
+                    0 => '"foo@isanemail" must be valid email',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -766,7 +766,8 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'your_text_input' => [
-                    0 => 'null is to short.',
+                    0 => '`NULL` is to short.',
+                    1 => '`NULL` is to long.',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -837,7 +838,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'i_like' => [
-                    0 => 'null must validate against "/banana|cherry/"',
+                    0 => '`NULL` must validate against "/banana|cherry/"',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -880,7 +881,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'i_like' => [
-                    0 => 'null must validate against "/banana|cherry/"',
+                    0 => '`NULL` must validate against "/banana|cherry/"',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -921,7 +922,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'zutat' => [
-                    0 => '"fooooo" must be in { "salami", "schinken", "sardellen" }',
+                    0 => '"fooooo" must be in `{ "salami", "schinken", "sardellen" }`',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -962,7 +963,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'Zahlmethode' => [
-                    0 => '"fooooo" must be in { "Mastercard", "Visa", "AmericanExpress" }',
+                    0 => '"fooooo" must be in `{ "Mastercard", "Visa", "AmericanExpress" }`',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -1026,7 +1027,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         static::assertSame(
             [
                 'top5' => [
-                    '"fooooo" must be in { "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }',
+                    '"fooooo" must be in `{ "Heino", "Michael Jackson", "Tom Waits", "Nina Hagen", "Marianne Rosenberg" }`',
                 ],
             ],
             $formValidatorResult->getErrorMessages()
@@ -1440,7 +1441,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
             '<form id="register" method="post">
             <label for="email">Email:</label>
             <input type="email" id="email" name="user[email]" value="" data-validator="auto" data-filter="trim" data-error-class="error-foo-bar" data-error-message--email="Your email [%s] address is not correct." data-error-template-selector="span#email-error-message-template" required="required" aria-invalid="true">
-            <span style="color: red;" id="email-error-message-template"><p>Your email [foo@isanemail] address is not correct.</p></span>
+            <span style="color: red;" id="email-error-message-template">Your email [foo@isanemail] address is not correct.</span>
             
             <label for="username">Name:</label>
             <input type="text" id="username" name="user[name]" value="bar" data-validator="notEmpty|maxLength(100)" data-filter="strip_tags(<p>)|trim|escape" data-error-class="error-foo-bar" data-error-template-selector="span#username-error-message-template" required="required" aria-invalid="false">
@@ -1448,7 +1449,7 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
             
             <label for="date">Date:</label>
             <input type="text" id="date" name="user[date]" value="" data-validator="dateGerman|notEmpty" data-filter="trim" data-error-class="error-foo-bar" data-error-message--dategerman="Date is not correct." data-error-message--notempty="Date is empty." data-error-template-selector="span#date-error-message-template" required="required" aria-invalid="true">
-            <span style="color: red;" id="date-error-message-template"><p>Date is not correct.</p> Date is empty.</span>
+            <span style="color: red;" id="date-error-message-template">Date is not correct. Date is empty.</span>
             
             <button type="submit">submit</button>
         </form>',

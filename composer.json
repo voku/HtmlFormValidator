@@ -9,8 +9,8 @@
         }
     ],
     "require": {
-        "php": ">=7.0.0",
-        "respect/validation": "~1.1",
+        "php": "^7.3 || ^8.0",
+        "respect/validation": "~2.1",
         "voku/email-check": "~3.0",
         "voku/simple_html_dom": "~4.7",
         "voku/portable-utf8": "~5.4"

@@ -1,5 +1,9 @@
 # Changelog
 
+### 3.0.1 (2021-12-08)
+
+- update "portable-utf8" from v5 -> v6
+
 ### 3.0.0 (2021-01-04)
 - update "respect/validation" from v1 -> v2
 - min. PHP 7.3 is required

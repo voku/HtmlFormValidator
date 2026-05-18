@@ -10,7 +10,7 @@
     ],
     "require": {
         "php": "^7.3 || ^8.0",
-        "respect/validation": "~2.2",
+        "respect/validation": "~3.0",
         "voku/email-check": "~3.1",
         "voku/simple_html_dom": "~4.7",
         "voku/portable-utf8": "~6.0"

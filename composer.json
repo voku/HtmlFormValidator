@@ -12,7 +12,7 @@
         "php": "^7.3 || ^8.0",
         "respect/validation": "~2.2",
         "voku/email-check": "~3.1",
-        "voku/simple_html_dom": "~4.7",
+        "voku/simple_html_dom": "~5.0",
         "voku/portable-utf8": "~6.0"
     },
     "require-dev": {

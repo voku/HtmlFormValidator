@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/voku/HtmlFormValidator.svg?branch=master)](https://travis-ci.org/voku/HtmlFormValidator)
+[![CI](https://github.com/voku/HtmlFormValidator/actions/workflows/ci.yml/badge.svg)](https://github.com/voku/HtmlFormValidator/actions/workflows/ci.yml)
 [![Coverage Status](https://coveralls.io/repos/github/voku/HtmlFormValidator/badge.svg?branch=master)](https://coveralls.io/github/voku/HtmlFormValidator?branch=master)
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/7527a5ffd2b945d38c0b580bbe3dfd93)](https://www.codacy.com/app/voku/HtmlFormValidator?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=voku/HtmlFormValidator&amp;utm_campaign=Badge_Grade)
 [![Latest Stable Version](https://poser.pugx.org/voku/html-form-validator/v/stable)](https://packagist.org/packages/voku/html-form-validator) 
@@ -362,8 +362,8 @@ e.g.: ```data-filter="append_lall"```
 
 1) [Composer](https://getcomposer.org) is a prerequisite for running the tests.
 
-```
-composer install voku/HtmlFormValidator
+```bash
+composer install
 ```
 
 2) The tests can be executed by running this command from the root directory:
@@ -384,6 +384,5 @@ For professional support please contact [me](https://about.me/voku).
 
 - Thanks to [GitHub](https://github.com) (Microsoft) for hosting the code and a good infrastructure including Issues-Managment, etc.
 - Thanks to [IntelliJ](https://www.jetbrains.com) as they make the best IDEs for PHP and they gave me an open source license for PhpStorm!
-- Thanks to [Travis CI](https://travis-ci.com/) for being the most awesome, easiest continous integration tool out there!
 - Thanks to [StyleCI](https://styleci.io/) for the simple but powerfull code style check.
-- Thanks to [PHPStan](https://github.com/phpstan/phpstan) && [Psalm](https://github.com/vimeo/psalm) for relly great Static analysis tools and for discover bugs in the code!
+- Thanks to [PHPStan](https://github.com/phpstan/phpstan) && [Psalm](https://github.com/vimeo/psalm) for really great Static analysis tools and for discover bugs in the code!

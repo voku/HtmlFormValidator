@@ -1159,11 +1159,11 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($formData);
 
         static::assertFalse($formValidatorResult->isSuccess());
-        static::assertContains(
+        static::assertStringContainsString(
             '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
             $formValidator->getHtml()
         );
-        static::assertContains(
+        static::assertStringContainsString(
             '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
             $formValidatorResult->getHtml()
         );
@@ -1186,11 +1186,11 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
         $formValidatorResult = $formValidator->validate($formData);
 
         static::assertFalse($formValidatorResult->isSuccess());
-        static::assertContains(
+        static::assertStringContainsString(
             '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
             $formValidator->getHtml()
         );
-        static::assertContains(
+        static::assertStringContainsString(
             '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required" aria-invalid="true">',
             $formValidatorResult->getHtml()
         );
@@ -1203,12 +1203,12 @@ final class ValidatorTest extends \PHPUnit\Framework\TestCase
 
         $formValidator = new Validator($formHTML);
 
-        static::assertContains(
+        static::assertStringContainsString(
             '<input type="email" id="email" name="email" value="" data-validator="email|maxLength(20)" required="required">',
             $formValidator->getHtml()
         );
 
-        static::assertContains(
+        static::assertStringContainsString(
             '<input type="submit">',
             $formValidator->getHtml()
         );

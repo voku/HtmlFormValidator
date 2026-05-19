@@ -419,7 +419,6 @@ class Validator
         $inputRule = $htmlElementField->getAttribute('data-validator');
 
         if (\stripos($inputRule, 'auto') !== false) {
-
             //
             // select default rule by input-type
             //

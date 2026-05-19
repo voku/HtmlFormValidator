@@ -98,13 +98,13 @@ final class ValidatorHelpers
                 if ($value[$length - 2] !== '"') {
                     return false;
                 }
-            // no break
+                // no break
             case 'b':
             case 'i':
             case 'd':
                 // This looks odd but it is quicker than isset()ing
                 $end .= ';';
-            // no break
+                // no break
             case 'a':
             case 'O':
                 $end .= '}';
@@ -126,7 +126,7 @@ final class ValidatorHelpers
                     default:
                         return false;
                 }
-            // no break
+                // no break
             case 'N':
                 $end .= ';';
                 if ($value[$length - 1] !== $end[0]) {

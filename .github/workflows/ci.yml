@@ -2,8 +2,6 @@ name: CI
 
 on:
   push:
-    branches:
-      - master
   pull_request:
 
 jobs:
@@ -43,6 +41,4 @@ jobs:
         run: composer dump-autoload -o
 
       - name: Run tests
-        run: |
-          mkdir -p build/logs
-          php vendor/bin/phpunit -c phpunit.xml --debug
+        run: php vendor/bin/phpunit -c phpunit.xml --debug

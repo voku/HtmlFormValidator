@@ -342,7 +342,11 @@ class Validator
                 '.',
                 $htmlElement->getAttribute('class')
             );
-            $fakeCssSelector = $htmlElement->getNode()->getNodePath() . '/' . $cssClassesTmp;
+            $nodePath = $htmlElement->getNode()->getNodePath();
+            if (\strpos($nodePath, '/simplevokuwrapper/') !== false) {
+                $nodePath = \str_replace('/simplevokuwrapper', '', $nodePath);
+            }
+            $fakeCssSelector = $nodePath . '/' . $cssClassesTmp;
 
             $htmlElementHelperId = 'html-element-validator-tmp-' . $fakeCssSelector;
         }

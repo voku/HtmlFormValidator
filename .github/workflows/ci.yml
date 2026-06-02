@@ -31,7 +31,7 @@ jobs:
             experimental: true
 
     steps:
-      - uses: actions/checkout@v6.0.2
+      - uses: actions/checkout@v6.0.3
 
       - uses: shivammathur/setup-php@2.37.1
         with:

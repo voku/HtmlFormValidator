@@ -33,7 +33,7 @@ jobs:
     steps:
       - uses: actions/checkout@v6.0.3
 
-      - uses: shivammathur/setup-php@2.37.2
+      - uses: shivammathur/setup-php@2.40.0
         with:
           php-version: ${{ matrix.php-version }}
           coverage: none
